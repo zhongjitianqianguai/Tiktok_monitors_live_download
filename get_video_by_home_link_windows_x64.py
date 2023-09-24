@@ -1,7 +1,7 @@
 import random
 import warnings
 from selenium import webdriver
-from selenium.common import NoSuchElementException
+from selenium.common import NoSuchElementException, WebDriverException
 from selenium.webdriver.common.by import By
 from browsermobproxy import Server
 import time
@@ -32,7 +32,7 @@ if __name__ == '__main__':
         live_links = f.readlines()
     while True:
         for home_link in home_links:
-        # for live_link in live_links:
+            # for live_link in live_links:
             try:
                 driver.get(home_link)
                 # driver.get('live.douyin.com/'+live_links)
@@ -59,3 +59,5 @@ if __name__ == '__main__':
             except NoSuchElementException:
                 print("主播尚未开播,将在1分钟后重试...")
                 time.sleep(random.randint(20, 60))
+            except WebDriverException:
+                continue
