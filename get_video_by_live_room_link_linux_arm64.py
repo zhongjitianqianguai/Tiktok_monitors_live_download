@@ -25,7 +25,7 @@ while True:
         try:
             browser.get(home_link)
             # driver.get('live.douyin.com/'+live_links)
-            time.sleep(20)
+
             url = browser.find_element(By.XPATH, "//div[@class='RPhIHafP']/a").get_attribute('href')
             host = browser.find_element(By.CLASS_NAME, 'Nu66P_ba')
             print("主播", host.text, "正在直播...")
