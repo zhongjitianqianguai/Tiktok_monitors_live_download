@@ -40,7 +40,7 @@ while True:
                         stream_url = request.url
                         flv_name = stream_url.split('flv')[0].split('/')[-1]
                         if flv_name not in live_name:
-                            browser.get(stream_url)
+                            driver.get(stream_url)
                             print("已获取流媒体：\n开始下载...")
                             live_name.append(flv_name)
                             break
