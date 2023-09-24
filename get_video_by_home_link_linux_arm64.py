@@ -44,7 +44,7 @@ while True:
                             driver.get(stream_url)
                             print("已获取流媒体：\n开始下载...")
                             live_name.append(flv_name)
-                        break
+                            break
         except NoSuchElementException:
             print("主播尚未开播,将在1分钟后重试...")
             time.sleep(random.randint(20, 60))
