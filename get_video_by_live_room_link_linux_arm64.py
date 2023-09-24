@@ -1,3 +1,4 @@
+import random
 import time
 
 from selenium.common import NoSuchElementException
@@ -45,4 +46,5 @@ while True:
                         break
         except NoSuchElementException:
             print("主播尚未开播,将在1分钟后重试...")
+            time.sleep(random.randint(20, 60))
             continue
