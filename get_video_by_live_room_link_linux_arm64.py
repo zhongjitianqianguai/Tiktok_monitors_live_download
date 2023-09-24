@@ -10,7 +10,7 @@ options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
-browser = webdriver.Chrome(service=Service('/user/bin/chromedriver'), options=options)
+browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
 live_name = []
 with open('Tiktok_home_link.txt') as f:
     home_links = f.readlines()
@@ -42,3 +42,4 @@ while True:
                         break
         except NoSuchElementException:
             print("主播尚未开播,将在1分钟后重试...")
+            continue
