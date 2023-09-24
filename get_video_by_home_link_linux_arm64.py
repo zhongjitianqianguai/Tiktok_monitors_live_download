@@ -7,6 +7,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from seleniumwire import webdriver
 
+import download_video_arm64
+
 options = Options()
 # 去掉"chrome正受到自动化测试软件的控制"的提示条
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -39,7 +41,7 @@ while True:
                         stream_url = request.url
                         flv_name = stream_url.split('flv')[0].split('/')[-1]
                         if flv_name not in live_name:
-                            browser.get(stream_url)
+                            download_video_arm64.download_live(stream_url)
                             print("已获取流媒体：\n开始下载...")
                             live_name.append(flv_name)
                             break
