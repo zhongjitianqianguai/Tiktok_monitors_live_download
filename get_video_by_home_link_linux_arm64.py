@@ -14,7 +14,7 @@ options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
-driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+# driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
 live_name = []
 with open('Tiktok_home_link.txt') as f:
     home_links = f.readlines()
@@ -40,7 +40,7 @@ while True:
                         stream_url = request.url
                         flv_name = stream_url.split('flv')[0].split('/')[-1]
                         if flv_name not in live_name:
-                            driver.get(stream_url)
+                            browser.get(stream_url)
                             print("已获取流媒体：\n开始下载...")
                             live_name.append(flv_name)
                             break
