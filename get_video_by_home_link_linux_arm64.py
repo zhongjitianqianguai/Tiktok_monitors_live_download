@@ -46,7 +46,6 @@ while True:
             time.sleep(random.randint(2, 5))
             driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
             driver.get(url)
-            json_data = requests.Request('GET', url, headers=fake_useragent.UserAgent().random).json()
             # 遍历请求列表
             stream_is_get = False
             while not stream_is_get:
