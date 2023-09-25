@@ -17,6 +17,7 @@ def download(live_url, filename):
     print('下载完成', filename)
     cmd = "ffmpeg -i /media/sd/Download/" + filename + ".flv -vcodec copy -acodec copy /media/sd/Download/" + filename + ".mp4"
     os.system(cmd)
+    os.remove("/media/sd/Download/" + filename + ".flv")
 
 
 options = Options()
@@ -52,6 +53,7 @@ while True:
                     if ".flv" in str(request):
                         # 获取接口返回内容
                         print(str(request))
+                        stream_is_get = True
                         time.sleep(2)
                         flv_name = str(request).split('flv')[0]
                         if flv_name not in live_name:
@@ -59,8 +61,7 @@ while True:
                             live_name.append(flv_name)
                             t = Thread(target=download, args=(str(request), time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time()))+liver))
                             t.start()
-                            stream_is_get = True
-                            driver.quit()
+                        driver.quit()
                         break
         except NoSuchElementException:
             time.sleep(random.randint(20, 60))
