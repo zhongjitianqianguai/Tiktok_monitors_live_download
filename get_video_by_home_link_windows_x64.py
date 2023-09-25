@@ -43,14 +43,13 @@ if __name__ == '__main__':
                 driver.get(url)
                 time.sleep(3)
                 json_data = proxy.har
-                # print(json_data)
                 for entry in json_data['log']['entries']:
                     # 根据URL找到数据接口
                     entry_url = entry['request']['url']
                     if ".flv" in entry_url:
                         # 获取接口返回内容
                         time.sleep(2)
-                        flv_name = entry_url.split('flv')[0].split('/')[-1]
+                        flv_name = entry_url.split('flv')[0]
                         if flv_name not in live_name:
                             print("已获取流媒体：", entry_url, '\n开始下载...')
                             driver.get(entry_url)

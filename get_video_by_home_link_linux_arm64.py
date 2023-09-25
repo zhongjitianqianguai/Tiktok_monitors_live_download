@@ -1,7 +1,10 @@
+import os
 import random
 import time
 from threading import Thread
 
+import fake_useragent
+import requests
 import wget
 from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
@@ -14,6 +17,8 @@ def download(live_url, filename):
     print('开始下载', filename)
     wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
     print('下载完成', filename)
+    cmd = "ffmpeg -i " + filename + ".flv -vcodec copy -acodec copy " + filename + ".mp4"
+    os.system(cmd)
 
 
 options = Options()
@@ -38,24 +43,26 @@ while True:
             host = browser.find_element(By.CLASS_NAME, 'Nu66P_ba')
             liver = host.text
             print("主播", host.text, "正在直播...")
-            driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
-            driver.get(url)
-            # 遍历请求列表
+            json_data = requests.Request('GET', url, headers=fake_useragent.UserAgent().random).json()
             stream_url = ''
             stream_is_get = False
             while not stream_is_get:
-                for request in driver.requests:
-                    if '.flv' in request.url:
+                for entry in json_data['log']['entries']:
+                    # 根据URL找到数据接口
+                    entry_url = entry['request']['url']
+                    if ".flv" in entry_url:
+                        # 获取接口返回内容
                         stream_is_get = True
-                        stream_url = request.url
-                        flv_name = stream_url.split('flv')[0]
+                        flv_name = entry_url.split('flv')[0]
                         if flv_name not in live_name:
                             t = Thread(target=download, args=(
-                                stream_url, time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + ":"+liver))
+                                entry_url,
+                                time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + ":" +
+                                liver))
                             t.start()
                             print("已获取流媒体")
                             live_name.append(flv_name)
-                            driver.quit()
-                            break
+                        break
+
         except NoSuchElementException:
             time.sleep(random.randint(20, 60))

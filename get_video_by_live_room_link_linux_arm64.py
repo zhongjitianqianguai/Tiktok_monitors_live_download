@@ -33,16 +33,21 @@ while True:
             # 遍历请求列表
             stream_url = ''
             stream_is_get = False
-            while not stream_is_get:
-                for request in browser.requests:
-                    if '.flv' in request.url:
-                        stream_is_get = True
-                        stream_url = request.url
-                        flv_name = stream_url.split('flv')[0].split('/')[-1]
-                        if flv_name not in live_name:
-                            print("已获取流媒体：", host.text, '的直播, \n开始下载...')
-                            live_name.append(flv_name)
-                        break
+            # while not stream_is_get:
+            #     for request in driver.requests:
+            #         if '.flv' in request.url:
+            #             stream_is_get = True
+            #             stream_url = request.url
+            #             flv_name = stream_url.split('flv')[0]
+            #             if flv_name not in live_name:
+            #                 t = Thread(target=download, args=(
+            #                     stream_url,
+            #                     time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + ":" + liver))
+            #                 t.start()
+            #                 print("已获取流媒体")
+            #                 live_name.append(flv_name)
+            #                 driver.quit()
+            #                 break
         except NoSuchElementException:
             print("主播尚未开播,将在1分钟后重试...")
             time.sleep(random.randint(20, 60))
