@@ -3,7 +3,6 @@ import random
 import time
 from threading import Thread
 
-import fake_useragent
 import requests
 import wget
 from fake_useragent import UserAgent
@@ -45,26 +44,25 @@ while True:
             host = browser.find_element(By.CLASS_NAME, 'Nu66P_ba')
             liver = host.text
             print("主播", host.text, "正在直播...")
-            json_data = requests.get(url, headers={"User-Agent": UserAgent().random}).json()
-            stream_url = ''
+            request = requests.get(url, headers={"User-Agent": UserAgent().random})
             stream_is_get = False
+
             while not stream_is_get:
-                for entry in json_data['log']['entries']:
-                    # 根据URL找到数据接口
-                    entry_url = entry['request']['url']
-                    if ".flv" in entry_url:
-                        # 获取接口返回内容
-                        stream_is_get = True
-                        flv_name = entry_url.split('flv')[0]
-                        if flv_name not in live_name:
-                            t = Thread(target=download, args=(
-                                entry_url,
-                                time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + ":" +
-                                liver))
-                            t.start()
-                            print("已获取流媒体")
-                            live_name.append(flv_name)
-                        break
+                request = requests.get(request.url, headers={"User-Agent": UserAgent().random})
+
+                if ".flv" in request.url:
+                    # 获取接口返回内容
+                    stream_is_get = True
+                    flv_name = request.url.split('flv')[0]
+                    if flv_name not in live_name:
+                        t = Thread(target=download, args=(
+                            request.url,
+                            time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + ":" +
+                            liver))
+                        t.start()
+                        print("已获取流媒体")
+                        live_name.append(flv_name)
+                    break
 
         except NoSuchElementException:
             time.sleep(random.randint(20, 60))
