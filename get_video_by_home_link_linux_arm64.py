@@ -45,13 +45,13 @@ while True:
             print("主播", host.text, "正在直播...")
             time.sleep(random.randint(2, 5))
             driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
-            driver.get(url)
+            driver.get(url.split("?")[0])
             # 遍历请求列表
             stream_is_get = False
             while not stream_is_get:
                 for request in driver.requests:
                     # print(request)
-                    if ".flv" in request:
+                    if ".flv" in str(request):
                         # 获取接口返回内容
                         time.sleep(2)
                         flv_name = str(request).split('flv')[0]
