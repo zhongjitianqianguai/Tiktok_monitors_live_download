@@ -37,6 +37,8 @@ while True:
             url = browser.find_element(By.XPATH, "//div[@class='RPhIHafP']/a").get_attribute('href')
             host = browser.find_element(By.CLASS_NAME, 'Nu66P_ba')
             print("主播", host.text, "正在直播...")
+            browser.quit()
+            browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
             browser.get(url)
             # 遍历请求列表
             stream_url = ''
