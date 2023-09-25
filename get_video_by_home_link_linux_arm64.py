@@ -28,45 +28,47 @@ options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
 live_name = []
-# with open('Tiktok_home_link.txt') as f:
-#     home_links = f.readlines()
-with open('Tiktok_live_room_id.txt') as f:
-    need_not_to_get = f.readlines()
+with open('Tiktok_home_link.txt') as f:
+    home_links = f.readlines()
+# with open('Tiktok_live_room_id.txt') as f:
+#     need_not_to_get = f.readlines()
 with open('Tiktok_live_room_id.txt') as f:
     live_links = f.readlines()
-with open("Tiktok_home_link_by_auto_get.txt", "r", encoding='utf-8') as file:
-    home_links = eval(file.read())
+# with open("Tiktok_home_link_by_auto_get.txt", "r", encoding='utf-8') as file:
+#     home_links = eval(file.read())
 while True:
-    for liver in home_links:
+    # for liver in home_links:
+    for home_link in home_links:
         # for live_link in live_links:
         try:
-            if liver not in need_not_to_get:
-                browser.get(home_links[liver])
-                # driver.get('live.douyin.com/'+live_links)
-                url = browser.find_element(By.XPATH, "//div[@class='RPhIHafP']/a").get_attribute('href')
-                host = browser.find_element(By.CLASS_NAME, 'Nu66P_ba')
-                liver = host.text
-                print("主播", host.text, "正在直播...")
-                time.sleep(random.randint(2, 5))
-                driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
-                driver.get(url.split("?")[0])
-                # 遍历请求列表
-                stream_is_get = False
-                while not stream_is_get:
-                    for request in driver.requests:
-                        # print(request)
-                        if ".flv" in str(request):
-                            # 获取接口返回内容
-                            print(str(request))
-                            stream_is_get = True
-                            time.sleep(2)
-                            flv_name = str(request).split('flv')[0]
-                            if flv_name not in live_name:
-                                print("已获取流媒体：")
-                                live_name.append(flv_name)
-                                t = Thread(target=download, args=(str(request), time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time()))+liver))
-                                t.start()
-                            driver.quit()
-                            break
+            # if liver not in need_not_to_get:
+            #     browser.get(home_links[liver])
+            browser.get(home_link)
+            # driver.get('live.douyin.com/'+live_links)
+            url = browser.find_element(By.XPATH, "//div[@class='RPhIHafP']/a").get_attribute('href')
+            host = browser.find_element(By.CLASS_NAME, 'Nu66P_ba')
+            liver = host.text
+            print("主播", host.text, "正在直播...")
+            time.sleep(random.randint(2, 5))
+            driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+            driver.get(url.split("?")[0])
+            # 遍历请求列表
+            stream_is_get = False
+            while not stream_is_get:
+                for request in driver.requests:
+                    # print(request)
+                    if ".flv" in str(request):
+                        # 获取接口返回内容
+                        print(str(request))
+                        stream_is_get = True
+                        time.sleep(2)
+                        flv_name = str(request).split('flv')[0]
+                        if flv_name not in live_name:
+                            print("已获取流媒体：")
+                            live_name.append(flv_name)
+                            t = Thread(target=download, args=(str(request), time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time()))+liver))
+                            t.start()
+                        driver.quit()
+                        break
         except NoSuchElementException:
             time.sleep(random.randint(5, 20))
