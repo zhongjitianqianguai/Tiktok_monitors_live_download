@@ -12,7 +12,7 @@ from seleniumwire import webdriver
 
 def download(live_url, filename):
     print('开始下载', filename)
-    wget.download(live_url, '/media/sd/Download/' + filename)
+    wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
     print('下载完成', filename)
 
 
@@ -36,6 +36,7 @@ while True:
             # driver.get('live.douyin.com/'+live_links)
             url = browser.find_element(By.XPATH, "//div[@class='RPhIHafP']/a").get_attribute('href')
             host = browser.find_element(By.CLASS_NAME, 'Nu66P_ba')
+            liver = host.text
             print("主播", host.text, "正在直播...")
             driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
             driver.get(url)
@@ -47,9 +48,10 @@ while True:
                     if '.flv' in request.url:
                         stream_is_get = True
                         stream_url = request.url
-                        flv_name = stream_url.split('flv')[0].split('/')[-1]
+                        flv_name = stream_url.split('flv')[0]
                         if flv_name not in live_name:
-                            t = Thread(target=download, args=(stream_url, flv_name))
+                            t = Thread(target=download, args=(
+                                stream_url, time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + ":"+liver))
                             t.start()
                             print("已获取流媒体")
                             live_name.append(flv_name)
