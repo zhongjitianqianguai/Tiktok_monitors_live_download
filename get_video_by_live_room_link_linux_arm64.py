@@ -1,5 +1,6 @@
 import random
 import time
+import urllib
 
 from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
@@ -41,7 +42,6 @@ while True:
                         flv_name = stream_url.split('flv')[0].split('/')[-1]
                         if flv_name not in live_name:
                             print("已获取流媒体：", host.text, '的直播, \n开始下载...')
-                            browser.get(stream_url)
                             live_name.append(flv_name)
                         break
         except NoSuchElementException:
