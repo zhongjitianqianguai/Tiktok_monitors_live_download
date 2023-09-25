@@ -63,5 +63,4 @@ while True:
                             str(request), time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime(time.time())) + liver))
                         t.start()
                         stream_is_get = True
-                    browser.close()
-                    break
+                        break

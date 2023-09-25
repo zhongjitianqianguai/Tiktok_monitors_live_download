@@ -48,6 +48,7 @@ while True:
         time.sleep(1)
         stream_is_get = False
         while not stream_is_get:
+            #校验是否关播了
             for request in browser.requests:
                 # print(request)
                 if ".flv" in str(request):
@@ -62,5 +63,4 @@ while True:
                             str(request), time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime(time.time())) + liver))
                         t.start()
                         stream_is_get = True
-                    browser.close()
-                    break
+                        break
