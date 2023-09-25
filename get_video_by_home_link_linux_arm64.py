@@ -28,10 +28,10 @@ options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
 live_name = []
-need_not_to_get = ['沙子哥（开箱福利主播）', 'TTing', '维密印象写真馆', '小乖乖', '安慧灵', '念念想吃芋泥', '蠢媛小宝贝', '楠楠不想起床',
-                   '系阿布甜甜啊', '你好特别.']
 # with open('Tiktok_home_link.txt') as f:
 #     home_links = f.readlines()
+with open('Tiktok_live_room_id.txt') as f:
+    need_not_to_get = f.readlines()
 with open('Tiktok_live_room_id.txt') as f:
     live_links = f.readlines()
 with open("Tiktok_home_link_by_auto_get.txt", "r", encoding='utf-8') as file:
@@ -69,4 +69,4 @@ while True:
                             driver.quit()
                             break
         except NoSuchElementException:
-            time.sleep(random.randint(20, 60))
+            time.sleep(random.randint(5, 20))
