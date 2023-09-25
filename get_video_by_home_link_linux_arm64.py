@@ -12,7 +12,7 @@ from seleniumwire import webdriver
 
 def download(live_url, filename):
     print('开始下载', filename)
-    wget.download(live_url)
+    wget.download(live_url, '/media/sd/Download/' + filename)
     print('下载完成', filename)
 
 
@@ -37,14 +37,13 @@ while True:
             url = browser.find_element(By.XPATH, "//div[@class='RPhIHafP']/a").get_attribute('href')
             host = browser.find_element(By.CLASS_NAME, 'Nu66P_ba')
             print("主播", host.text, "正在直播...")
-            browser.quit()
-            browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
-            browser.get(url)
+            driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+            driver.get(url)
             # 遍历请求列表
             stream_url = ''
             stream_is_get = False
             while not stream_is_get:
-                for request in browser.requests:
+                for request in driver.requests:
                     if '.flv' in request.url:
                         stream_is_get = True
                         stream_url = request.url
@@ -52,9 +51,9 @@ while True:
                         if flv_name not in live_name:
                             t = Thread(target=download, args=(stream_url, flv_name))
                             t.start()
-                            print("已获取流媒体：\n开始下载...")
+                            print("已获取流媒体")
                             live_name.append(flv_name)
+                            driver.quit()
                             break
         except NoSuchElementException:
-            print("主播尚未开播,将在1分钟后重试...")
             time.sleep(random.randint(20, 60))
