@@ -17,7 +17,7 @@ def download(live_url, filename):
     print('开始下载', filename)
     wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
     print('下载完成', filename)
-    cmd = "ffmpeg -i " + filename + ".flv -vcodec copy -acodec copy " + filename + ".mp4"
+    cmd = "ffmpeg -i /media/sd/Download/" + filename + ".flv -vcodec copy -acodec copy /media/sd/Download/" + filename + ".mp4"
     os.system(cmd)
 
 
