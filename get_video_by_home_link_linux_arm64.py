@@ -50,8 +50,8 @@ while True:
             stream_is_get = False
             while not stream_is_get:
                 for request in driver.requests:
-                    json_data = driver.har
-                    print(json_data)
+                    print(request.url)
+
                     # for entry in json_data:
                     #     # 根据URL找到数据接口
                     #     entry_url = entry
