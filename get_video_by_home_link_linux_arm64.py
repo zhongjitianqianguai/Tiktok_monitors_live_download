@@ -3,9 +3,9 @@ import random
 import time
 from threading import Thread
 
+import fake_useragent
 import requests
 import wget
-from fake_useragent import UserAgent
 from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -19,7 +19,6 @@ def download(live_url, filename):
     print('下载完成', filename)
     cmd = "ffmpeg -i " + filename + ".flv -vcodec copy -acodec copy " + filename + ".mp4"
     os.system(cmd)
-    os.remove(filename + '.flv')
 
 
 options = Options()
@@ -44,25 +43,25 @@ while True:
             host = browser.find_element(By.CLASS_NAME, 'Nu66P_ba')
             liver = host.text
             print("主播", host.text, "正在直播...")
-            request = requests.get(url, headers={"User-Agent": UserAgent().random})
+            time.sleep(random.randint(2, 5))
+            driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+            driver.get(url)
+            json_data = requests.Request('GET', url, headers=fake_useragent.UserAgent().random).json()
+            # 遍历请求列表
             stream_is_get = False
-
             while not stream_is_get:
-                request = requests.get(request.url, headers={"User-Agent": UserAgent().random})
-
-                if ".flv" in request.url:
-                    # 获取接口返回内容
-                    stream_is_get = True
-                    flv_name = request.url.split('flv')[0]
-                    if flv_name not in live_name:
-                        t = Thread(target=download, args=(
-                            request.url,
-                            time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + ":" +
-                            liver))
-                        t.start()
-                        print("已获取流媒体")
-                        live_name.append(flv_name)
-                    break
-
+                for request in driver.requests:
+                    if '.flv' in request.url:
+                        stream_is_get = True
+                        flv_name = request.url.split('flv')[0]
+                        if flv_name not in live_name:
+                            t = Thread(target=download, args=(
+                                request.url,
+                                time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + ":" + liver))
+                            t.start()
+                            print("已获取流媒体")
+                            live_name.append(flv_name)
+                            driver.quit()
+                            break
         except NoSuchElementException:
             time.sleep(random.randint(20, 60))
