@@ -59,9 +59,10 @@ while True:
                         if flv_name not in live_name:
                             print("已获取流媒体：")
                             live_name.append(flv_name)
-                            t = Thread(target=download, args=(request, liver))
+                            t = Thread(target=download, args=(str(request), liver))
                             t.start()
                             stream_is_get = True
+                            driver.quit()
                             break
         except NoSuchElementException:
             time.sleep(random.randint(20, 60))
