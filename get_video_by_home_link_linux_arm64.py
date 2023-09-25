@@ -45,7 +45,7 @@ while True:
             host = browser.find_element(By.CLASS_NAME, 'Nu66P_ba')
             liver = host.text
             print("主播", host.text, "正在直播...")
-            json_data = requests.get(url, headers=UserAgent().random).json()
+            json_data = requests.get(url, headers={"User-Agent": UserAgent().random}).json()
             stream_url = ''
             stream_is_get = False
             while not stream_is_get:
