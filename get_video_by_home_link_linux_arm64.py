@@ -3,8 +3,6 @@ import random
 import time
 from threading import Thread
 
-import fake_useragent
-import requests
 import wget
 from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
