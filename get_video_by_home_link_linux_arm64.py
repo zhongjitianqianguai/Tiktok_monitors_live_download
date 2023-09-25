@@ -57,7 +57,7 @@ while True:
                         if flv_name not in live_name:
                             print("已获取流媒体：")
                             live_name.append(flv_name)
-                            t = Thread(target=download, args=(str(request), liver))
+                            t = Thread(target=download, args=(str(request), time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time()))+liver))
                             t.start()
                             stream_is_get = True
                             driver.quit()
