@@ -50,20 +50,7 @@ while True:
             stream_is_get = False
             while not stream_is_get:
                 for request in driver.requests:
-                    print(request.url)
-
-                    # for entry in json_data:
-                    #     # 根据URL找到数据接口
-                    #     entry_url = entry
-                    #     if ".flv" in entry_url:
-                    #         # 获取接口返回内容
-                    #         time.sleep(2)
-                    #         flv_name = entry_url.split('flv')[0]
-                    #         if flv_name not in live_name:
-                    #             print("已获取流媒体：")
-                    #             download(entry_url, liver)
-                    #             live_name.append(flv_name)
-                    #         break
+                    print(request)
 
         except NoSuchElementException:
             time.sleep(random.randint(20, 60))
