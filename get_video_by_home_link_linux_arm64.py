@@ -53,6 +53,7 @@ while True:
                     # print(request)
                     if ".flv" in str(request):
                         # 获取接口返回内容
+                        print(str(request))
                         time.sleep(2)
                         flv_name = str(request).split('flv')[0]
                         if flv_name not in live_name:
