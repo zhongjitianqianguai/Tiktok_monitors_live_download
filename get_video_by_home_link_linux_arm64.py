@@ -6,6 +6,7 @@ from threading import Thread
 import fake_useragent
 import requests
 import wget
+from fake_useragent import UserAgent
 from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -19,6 +20,7 @@ def download(live_url, filename):
     print('下载完成', filename)
     cmd = "ffmpeg -i " + filename + ".flv -vcodec copy -acodec copy " + filename + ".mp4"
     os.system(cmd)
+    os.remove(filename + '.flv')
 
 
 options = Options()
@@ -43,7 +45,7 @@ while True:
             host = browser.find_element(By.CLASS_NAME, 'Nu66P_ba')
             liver = host.text
             print("主播", host.text, "正在直播...")
-            json_data = requests.Request('GET', url, headers=fake_useragent.UserAgent().random).json()
+            json_data = requests.get(url, headers=UserAgent().random).json()
             stream_url = ''
             stream_is_get = False
             while not stream_is_get:
