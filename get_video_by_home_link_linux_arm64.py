@@ -66,9 +66,19 @@ while True:
                         if flv_name not in live_name:
                             print("已获取流媒体：")
                             live_name.append(flv_name)
-                            t = Thread(target=download, args=(str(request), time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time()))+liver))
+                            t = Thread(target=download, args=(
+                                str(request), time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + liver))
                             t.start()
                         driver.quit()
                         break
+                    else:
+                        try:
+                            # 校验是否下播了
+                            if driver.find_element(By.CLASS_NAME, 'YQXSUEUr'):
+                                print("主播", host.text, "已下播")
+                                driver.quit()
+                                break
+                        except NoSuchElementException:
+                            continue
         except NoSuchElementException:
             time.sleep(random.randint(5, 20))
