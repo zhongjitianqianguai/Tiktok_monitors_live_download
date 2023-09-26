@@ -16,11 +16,12 @@ def download(live_url, filename):
     print('开始下载', filename)
     # 过滤英文和汉字以外的字符
     filename = re.sub(r'[^\u4e00-\u9fa5a-zA-Z]', '', filename)
-    wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
-    print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '下载完成', filename)
+    wget.download(live_url, '/media/sd/Download/' + time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) +filename + '.flv')
+    print(time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + '下载完成', filename)
     cmd = "ffmpeg -i /media/sd/Download/" + filename + ".flv -vcodec copy -acodec copy /media/sd/Download/" + filename + ".mp4"
     os.system(cmd)
     os.remove("/media/sd/Download/" + filename + ".flv")
+    print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
 
 
 options = Options()
@@ -51,12 +52,11 @@ while True:
             #     browser.get(home_links[liver])
             browser.get(home_link)
             # driver.get('live.douyin.com/'+live_links)
-            host = browser.find_element(By.CLASS_NAME, 'Nu66P_ba')
-            if host.text not in home_link_dict:
-                home_link_dict[host.text] = home_link
+            liver = browser.find_element(By.CLASS_NAME, 'Nu66P_ba').text
+            if liver not in home_link_dict:
+                home_link_dict[liver] = home_link
             url = browser.find_element(By.XPATH, "//div[@class='RPhIHafP']/a").get_attribute('href')
-            liver = host.text
-            print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播", host.text, "正在直播...")
+            print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播", liver, "正在直播...")
             time.sleep(random.randint(2, 5))
             driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
             driver.get(url.split("?")[0])
@@ -76,10 +76,9 @@ while True:
                         flv_name = str(request).split('.flv')[0]
                         print(flv_name)
                         if flv_name not in live_name:
-                            print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "已获取流媒体："+flv_name)
+                            print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "已获取"+liver+"流媒体：")
                             live_name.append(flv_name)
-                            t = Thread(target=download, args=(
-                                str(request), time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + liver))
+                            t = Thread(target=download, args=(str(request), liver))
                             t.start()
                         driver.quit()
                         break
@@ -87,7 +86,8 @@ while True:
                         try:
                             # 校验是否下播了
                             if driver.find_element(By.CLASS_NAME, 'YQXSUEUr'):
-                                print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播", host.text, "已下播")
+                                print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
+                                      liver, "已下播")
                                 driver.quit()
                                 is_living = False
                                 break
