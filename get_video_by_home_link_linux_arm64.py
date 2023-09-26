@@ -28,6 +28,8 @@ options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
 live_name = []
+home_link_dict = {}
+live_room_dict = {}
 with open('Tiktok_home_link.txt') as f:
     home_links = f.readlines()
 # with open('Tiktok_live_room_id.txt') as f:
@@ -45,13 +47,17 @@ while True:
             #     browser.get(home_links[liver])
             browser.get(home_link)
             # driver.get('live.douyin.com/'+live_links)
-            url = browser.find_element(By.XPATH, "//div[@class='RPhIHafP']/a").get_attribute('href')
             host = browser.find_element(By.CLASS_NAME, 'Nu66P_ba')
+            if host.text not in home_link_dict:
+                home_link_dict[host.text] = home_link
+            url = browser.find_element(By.XPATH, "//div[@class='RPhIHafP']/a").get_attribute('href')
             liver = host.text
             print("主播", host.text, "正在直播...")
             time.sleep(random.randint(2, 5))
             driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
             driver.get(url.split("?")[0])
+            if liver not in live_room_dict:
+                live_room_dict[liver] = url.split("?")[0]
             # 遍历请求列表
             stream_is_get = False
             while not stream_is_get:
@@ -82,3 +88,10 @@ while True:
                             continue
         except NoSuchElementException:
             time.sleep(random.randint(5, 20))
+    with open("Tiktok_home_link_by_auto_get.txt", "w", encoding='utf-8') as file:
+        file.write(json.dumps(home_link_dict))
+    file.close()
+    with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
+        file.write(json.dumps(live_room_dict))
+    file.close()
+
