@@ -73,7 +73,7 @@ while True:
                         flv_name = str(request).split('flv')[0]
                         print(flv_name)
                         if flv_name not in live_name:
-                            print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "已获取流媒体：")
+                            print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "已获取流媒体："+flv_name)
                             live_name.append(flv_name)
                             t = Thread(target=download, args=(
                                 str(request), time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + liver))
