@@ -34,19 +34,24 @@ options.add_argument("--lang=zh_CN")
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
 live_name = []
 home_link_dict = {}
-with open('Tiktok_home_link.txt') as f:
-    home_links = f.readlines()
+
 # with open('Tiktok_live_room_id.txt') as f:
 #     need_not_to_get = f.readlines()
+# f.close()
 with open('Tiktok_live_room_id.txt') as f:
     live_links = f.readlines()
+f.close()
 # with open("Tiktok_home_link_by_auto_get.txt", "r", encoding='utf-8') as file:
 #     home_links = eval(file.read())
 with open("Tiktok_live_room_link_by_auto_get.txt", "r", encoding='utf-8') as file:
     live_room_dict = eval(file.read())
+file.close()
 while True:
     # for liver in home_links:
     start_time = time.time()
+    with open('Tiktok_home_link.txt') as f:
+        home_links = f.readlines()
+    f.close()
     for home_link in home_links:
         # for live_link in live_links:
         try:
