@@ -14,7 +14,7 @@ from seleniumwire import webdriver
 def download(live_url, filename):
     print('开始下载', filename)
     wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
-    print('下载完成', filename)
+    print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '下载完成', filename)
     cmd = "ffmpeg -i /media/sd/Download/" + filename + ".flv -vcodec copy -acodec copy /media/sd/Download/" + filename + ".mp4"
     os.system(cmd)
     os.remove("/media/sd/Download/" + filename + ".flv")
@@ -52,7 +52,7 @@ while True:
                 home_link_dict[host.text] = home_link
             url = browser.find_element(By.XPATH, "//div[@class='RPhIHafP']/a").get_attribute('href')
             liver = host.text
-            print("主播", host.text, "正在直播...")
+            print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播", host.text, "正在直播...")
             time.sleep(random.randint(2, 5))
             driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
             driver.get(url.split("?")[0])
@@ -70,7 +70,7 @@ while True:
                         time.sleep(2)
                         flv_name = str(request).split('flv')[0]
                         if flv_name not in live_name:
-                            print("已获取流媒体：")
+                            print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "已获取流媒体：")
                             live_name.append(flv_name)
                             t = Thread(target=download, args=(
                                 str(request), time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + liver))
@@ -81,7 +81,7 @@ while True:
                         try:
                             # 校验是否下播了
                             if driver.find_element(By.CLASS_NAME, 'YQXSUEUr'):
-                                print("主播", host.text, "已下播")
+                                print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播", host.text, "已下播")
                                 driver.quit()
                                 break
                         except NoSuchElementException:
