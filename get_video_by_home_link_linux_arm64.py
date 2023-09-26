@@ -29,7 +29,6 @@ options.add_argument("--lang=zh_CN")
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
 live_name = []
 home_link_dict = {}
-live_room_dict = {}
 with open('Tiktok_home_link.txt') as f:
     home_links = f.readlines()
 # with open('Tiktok_live_room_id.txt') as f:
@@ -38,6 +37,8 @@ with open('Tiktok_live_room_id.txt') as f:
     live_links = f.readlines()
 # with open("Tiktok_home_link_by_auto_get.txt", "r", encoding='utf-8') as file:
 #     home_links = eval(file.read())
+with open("Tiktok_live_room_link_by_auto_get.txt", "r", encoding='utf-8') as file:
+    live_room_dict = eval(file.read())
 while True:
     # for liver in home_links:
     for home_link in home_links:
@@ -88,10 +89,11 @@ while True:
                             continue
         except NoSuchElementException:
             time.sleep(random.randint(5, 20))
+    print(home_link_dict, live_room_dict)
     with open("Tiktok_home_link_by_auto_get.txt", "w", encoding='utf-8') as file:
-        file.write(json.dumps(home_link_dict))
+        file.write(json.dumps(home_link_dict, ensure_ascii=False))
     file.close()
     with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
-        file.write(json.dumps(live_room_dict))
+        file.write(json.dumps(live_room_dict, ensure_ascii=False))
     file.close()
 
