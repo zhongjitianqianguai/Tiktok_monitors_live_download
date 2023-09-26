@@ -19,7 +19,9 @@ def download(live_url, filename):
     wget.download(live_url, '/media/sd/Download/' + time.strftime('%Y-%m-%d-%H-%M-%S',
                                                                   time.localtime(time.time())) + filename + '.flv')
     print(time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + '下载完成', filename)
-    cmd = "ffmpeg -i /media/sd/Download/" + filename + ".flv -vcodec copy -acodec copy /media/sd/Download/" + filename + ".mp4"
+    cmd = "ffmpeg -i /media/sd/Download/" + time.strftime('%Y-%m-%d-%H-%M-%S',
+                                                          time.localtime(
+                                                              time.time())) + filename + ".flv -vcodec copy -acodec copy /media/sd/Download/" + filename + ".mp4"
     os.system(cmd)
     os.remove("/media/sd/Download/" + filename + ".flv")
     print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
@@ -103,7 +105,7 @@ while True:
         except NoSuchElementException:
             time.sleep(random.randint(5, 20))
     end_time = time.time()
-    print("本次爬取列表中所有主播花费时间：", (end_time - start_time)/60, "分钟")
+    print("本次爬取列表中所有主播花费时间：", (end_time - start_time) / 60, "分钟")
     if len(home_link_dict) == len(home_links):
         print('所有主播的直播间链接已获取完毕，可以考虑切换为直接访问直播间的模式')
     with open("Tiktok_home_link_by_auto_get.txt", "w", encoding='utf-8') as file:
