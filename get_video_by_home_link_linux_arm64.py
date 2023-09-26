@@ -61,7 +61,8 @@ while True:
                 live_room_dict[liver] = url.split("?")[0]
             # 遍历请求列表
             stream_is_get = False
-            while not stream_is_get:
+            is_living = True
+            while not stream_is_get and is_living:
                 for request in driver.requests:
                     # print(request)
                     if ".flv" in str(request):
@@ -84,6 +85,7 @@ while True:
                             if driver.find_element(By.CLASS_NAME, 'YQXSUEUr'):
                                 print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播", host.text, "已下播")
                                 driver.quit()
+                                is_living = False
                                 break
                         except NoSuchElementException:
                             continue
