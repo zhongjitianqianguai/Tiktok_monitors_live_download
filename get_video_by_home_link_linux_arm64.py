@@ -1,5 +1,6 @@
 import os
 import random
+import re
 import time
 from threading import Thread
 import json
@@ -13,6 +14,8 @@ from seleniumwire import webdriver
 
 def download(live_url, filename):
     print('开始下载', filename)
+    # 过滤英文和汉字以外的字符
+    filename = re.sub(r'[^\u4e00-\u9fa5a-zA-Z]', '', filename)
     wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
     print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '下载完成', filename)
     cmd = "ffmpeg -i /media/sd/Download/" + filename + ".flv -vcodec copy -acodec copy /media/sd/Download/" + filename + ".mp4"
