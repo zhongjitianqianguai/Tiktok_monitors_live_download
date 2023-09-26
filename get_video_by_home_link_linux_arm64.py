@@ -73,7 +73,7 @@ while True:
                         print(str(request))
                         stream_is_get = True
                         time.sleep(2)
-                        flv_name = str(request).split('flv')[0]
+                        flv_name = str(request).split('.flv')[0]
                         print(flv_name)
                         if flv_name not in live_name:
                             print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "已获取流媒体："+flv_name)
