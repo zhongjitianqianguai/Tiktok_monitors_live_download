@@ -89,7 +89,8 @@ while True:
                             continue
         except NoSuchElementException:
             time.sleep(random.randint(5, 20))
-    print(home_link_dict, live_room_dict)
+    print(home_link_dict)
+    print(live_room_dict)
     with open("Tiktok_home_link_by_auto_get.txt", "w", encoding='utf-8') as file:
         file.write(json.dumps(home_link_dict, ensure_ascii=False))
     file.close()
