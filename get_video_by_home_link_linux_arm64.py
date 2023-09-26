@@ -107,6 +107,7 @@ while True:
         except NoSuchElementException:
             time.sleep(random.randint(5, 20))
         except WebDriverException as e:
+            print(e.stacktrace)
             continue
     end_time = time.time()
     print("本次爬取列表中所有主播花费时间：", (end_time - start_time) / 60, "分钟")
