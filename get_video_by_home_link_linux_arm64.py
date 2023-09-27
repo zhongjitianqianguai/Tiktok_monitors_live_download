@@ -35,7 +35,7 @@ options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
-browser.set_page_load_timeout(60)
+browser.set_page_load_timeout(180)
 live_name = []
 home_link_dict = {}
 
