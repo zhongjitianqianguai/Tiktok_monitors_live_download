@@ -5,7 +5,7 @@ import time
 from threading import Thread
 import json
 import wget
-from selenium.common import NoSuchElementException, WebDriverException
+from selenium.common import NoSuchElementException, WebDriverException, NoSuchWindowException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -35,7 +35,7 @@ options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
-browser.set_page_load_timeout(20)
+browser.set_page_load_timeout(60)
 live_name = []
 home_link_dict = {}
 
@@ -104,11 +104,20 @@ while True:
             time.sleep(random.randint(5, 20))
         except WebDriverException as e:
             print(e.msg)
-            if browser:
-                continue
-            else:
-                browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
-                continue
+            try:
+                # 判断页面是否存在
+                title = browser.title
+                print("页面标题：", title)
+            except WebDriverException as e:
+                if isinstance(e, NoSuchWindowException):
+                    print("页面已经关闭")
+                    browser.quit()
+                    browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+                    continue
+                else:
+                    print("页面崩溃或无法访问")
+                    continue
+
     end_time = time.time()
     print("本次爬取列表中所有主播花费时间：", (end_time - start_time) / 60, "分钟")
     if len(home_link_dict) == len(home_links):
