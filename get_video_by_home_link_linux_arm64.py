@@ -35,7 +35,7 @@ options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
-browser.set_page_load_timeout(180)
+browser.set_page_load_timeout(300)
 live_name = []
 home_link_dict = {}
 
@@ -61,7 +61,7 @@ while True:
             # driver.get('live.douyin.com/'+live_links)
             liver = browser.find_element(By.CLASS_NAME, 'Nu66P_ba').text
             if liver not in home_link_dict:
-                home_link_dict[liver] = home_link
+                home_link_dict[liver] = browser.current_url
             url = browser.find_element(By.XPATH, "//div[@class='RPhIHafP']/a").get_attribute('href')
             print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播", liver, "正在直播...")
             time.sleep(random.randint(2, 5))

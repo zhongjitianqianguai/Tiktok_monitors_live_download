@@ -38,7 +38,7 @@ def through_live_room(live_room_link, host):
     live_options.add_argument("--lang=zh_CN")
     live_options.add_argument("--headless")
     live_browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=live_options)
-    live_browser.set_page_load_timeout(240)
+    live_browser.set_page_load_timeout(300)
     flv_name = ""
     while True:
         try:
@@ -91,7 +91,7 @@ options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
-browser.set_page_load_timeout(240)
+browser.set_page_load_timeout(300)
 with open("Tiktok_home_link_by_auto_get.txt", "r", encoding='utf-8') as file:
     home_links_dict = eval(file.read())
 with open('Tiktok_live_room_link_by_auto_get.txt', encoding='utf-8') as f:
