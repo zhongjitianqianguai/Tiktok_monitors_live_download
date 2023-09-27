@@ -117,7 +117,7 @@ while True:
             live_room_url = follow_live.get_attribute('href')
             liver = follow_live.find_element(By.CLASS_NAME, 'mY8V_PPX').text
             t = Thread(target=through_live_room, args=(live_room_url, liver))
-            time.sleep(random.randint(5, 10))
+            time.sleep(random.randint(10, 20))
             t.start()
         time.sleep(random.randint(5, 10))
     except NoSuchElementException:
