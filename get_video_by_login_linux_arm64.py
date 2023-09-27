@@ -5,7 +5,6 @@ from threading import Thread
 
 import wget
 from selenium.common import NoSuchElementException, WebDriverException, NoSuchWindowException
-from selenium.webdriver import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -28,8 +27,7 @@ options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
-live_name = []
-liver_link = {}
+browser.set_page_load_timeout(300)
 
 
 def through_live_room(live_room_link, host):
