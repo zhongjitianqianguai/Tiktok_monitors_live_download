@@ -102,17 +102,22 @@ def through_live_room(live_room_link, host):
                     continue
 
 
-browser.get('https://live.douyin.com/')
-input("请登录后按回车键继续...")
+is_first_time = True
+
 while True:
-    browser.get("https://www.douyin.com/follow")
-    time.sleep(random.randint(1, 5))
-    follow_live_list = browser.find_element(By.CLASS_NAME, 'X5RsU67Q')
-    follow_live_lists = follow_live_list.find_elements(By.TAG_NAME, 'a')
-    for follow_live in follow_live_lists:
-        live_room_url = follow_live.get_attribute('href')
-        liver = follow_live.find_element(By.CLASS_NAME, 'mY8V_PPX').text
-        t = Thread(target=through_live_room, args=(live_room_url, liver))
-    time.sleep(random.randint(5, 10))
-
-
+    try:
+        browser.get("https://www.douyin.com/follow")
+        if is_first_time:
+            input("请登录后按回车键继续...")
+            is_first_time = False
+        time.sleep(random.randint(1, 5))
+        follow_live_list = browser.find_element(By.CLASS_NAME, 'X5RsU67Q')
+        follow_live_lists = follow_live_list.find_elements(By.TAG_NAME, 'a')
+        for follow_live in follow_live_lists:
+            live_room_url = follow_live.get_attribute('href')
+            liver = follow_live.find_element(By.CLASS_NAME, 'mY8V_PPX').text
+            t = Thread(target=through_live_room, args=(live_room_url, liver))
+        time.sleep(random.randint(5, 10))
+    except NoSuchElementException:
+        time.sleep(random.randint(5, 10))
+        continue
