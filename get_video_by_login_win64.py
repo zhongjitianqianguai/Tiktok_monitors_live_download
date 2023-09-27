@@ -21,7 +21,7 @@ options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
-browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
 browser.set_page_load_timeout(300)
 
 
@@ -33,8 +33,8 @@ def through_live_room(live_room_link, host):
     live_options.add_argument("--no-sandbox")
     live_options.add_argument("--lang=zh_CN")
     # live_options.add_argument("--headless")
-    live_browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=live_options)
-    live_browser.set_page_load_timeout(300)
+    live_browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=live_options)
+    live_browser.set_page_load_timeout(3000)
     flv_name = ""
     while True:
         try:
@@ -80,7 +80,7 @@ def through_live_room(live_room_link, host):
 
 
 is_first_time = True
-
+live_room_opened = []
 while True:
     try:
         browser.get("https://www.douyin.com/follow")
@@ -93,6 +93,8 @@ while True:
         for follow_live in follow_live_lists:
             live_room_url = follow_live.get_attribute('href')
             liver = follow_live.find_element(By.CLASS_NAME, 'mY8V_PPX').text
+            if live_room_url in live_room_opened:
+                continue
             t = Thread(target=through_live_room, args=(live_room_url, liver))
             time.sleep(random.randint(10, 20))
             t.start()

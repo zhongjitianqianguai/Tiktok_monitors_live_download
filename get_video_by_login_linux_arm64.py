@@ -56,36 +56,54 @@ def through_live_room(live_room_link, host):
     live_options.add_argument("--lang=zh_CN")
     live_options.add_argument("--headless")
     live_browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=live_options)
-    live_browser.set_page_load_timeout(300)
-    live_browser.get(live_room_link)
-    for request in live_browser.requests:
-        if ".flv" in str(request):
-            # 获取接口返回内容
-            print(str(request))
-            time.sleep(2)
-            if str(request).split('.flv')[0] not in live_stream_name :
-                print(time.strftime('%Y-%m-%d_%H:%M:%S',
-                                    time.localtime(time.time())), "已获取", host, "流媒体：")
-                live_thread = Thread(target=download, args=(str(request), host))
-                live_thread.start()
-                live_stream_name.append(str(request).split('.flv')[0])
-                time.sleep(random.randint(30, 90))
-            break
-        else:
-            try:
-                # 校验是否下播了
-                if live_browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
-                    # print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
-                    #       host, "已下播")
-                    time.sleep(random.randint(20, 60))
+    live_browser.set_page_load_timeout(3000)
+    flv_name = ""
+    while True:
+        try:
+            live_browser.get(live_room_link)
+            for request in live_browser.requests:
+                if ".flv" in str(request):
+                    # 获取接口返回内容
+                    print(str(request))
+                    time.sleep(2)
+                    if flv_name is not str(request).split('.flv')[0]:
+                        print(time.strftime('%Y-%m-%d_%H:%M:%S',
+                                            time.localtime(time.time())), "已获取", host, "流媒体：")
+                        flv_name = str(request).split('.flv')[0]
+                        live_thread = Thread(target=download, args=(str(request), host))
+                        live_thread.start()
+                        time.sleep(random.randint(30, 90))
                     break
-            except NoSuchElementException:
-                continue
-    live_browser.quit()
+                else:
+                    try:
+                        # 校验是否下播了
+                        if live_browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
+                            # print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
+                            #       host, "已下播")
+                            time.sleep(random.randint(20, 60))
+                            break
+                    except NoSuchElementException:
+                        continue
+        except WebDriverException as live_e:
+            print(live_e.msg)
+            print(live_e.stacktrace)
+            try:
+                # 判断页面是否存在
+                live_title = live_browser.title
+                print("页面标题：", live_title)
+            except WebDriverException as live_e:
+                if isinstance(live_e, NoSuchWindowException):
+                    print("页面已经关闭")
+                    live_browser.quit()
+                    live_browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=live_options)
+                    continue
+                else:
+                    print("页面崩溃或无法访问")
+                    continue
 
 
-live_stream_name = []
 is_first_time = True
+live_room_opened = []
 
 while True:
     try:
@@ -99,8 +117,10 @@ while True:
         for follow_live in follow_live_lists:
             live_room_url = follow_live.get_attribute('href')
             liver = follow_live.find_element(By.CLASS_NAME, 'mY8V_PPX').text
+            if live_room_url in live_room_opened:
+                continue
             t = Thread(target=through_live_room, args=(live_room_url, liver))
-            time.sleep(random.randint(10, 20))
+            time.sleep(random.randint(5, 10))
             t.start()
         time.sleep(random.randint(5, 10))
     except NoSuchElementException:
