@@ -4,7 +4,7 @@ import time
 from threading import Thread
 
 import wget
-from selenium.common import NoSuchElementException
+from selenium.common import NoSuchElementException, WebDriverException, NoSuchWindowException
 from selenium.webdriver import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -31,6 +31,62 @@ browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=opt
 live_name = []
 liver_link = {}
 
+
+def through_live_room(live_room_link, host):
+    live_options = Options()
+    # 去掉"chrome正受到自动化测试软件的控制"的提示条
+    live_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    live_options.add_experimental_option('useAutomationExtension', False)
+    live_options.add_argument("--no-sandbox")
+    live_options.add_argument("--lang=zh_CN")
+    live_options.add_argument("--headless")
+    live_browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=live_options)
+    live_browser.set_page_load_timeout(300)
+    flv_name = ""
+    while True:
+        try:
+            live_browser.get(live_room_link)
+            for request in live_browser.requests:
+                if ".flv" in str(request):
+                    # 获取接口返回内容
+                    print(str(request))
+                    time.sleep(2)
+                    if flv_name is not str(request).split('.flv')[0]:
+                        print(time.strftime('%Y-%m-%d_%H:%M:%S',
+                                            time.localtime(time.time())), "已获取", host, "流媒体：")
+                        flv_name = str(request).split('.flv')[0]
+                        live_thread = Thread(target=download, args=(str(request), host))
+                        live_thread.start()
+                        time.sleep(random.randint(30, 90))
+                    break
+                else:
+                    try:
+                        # 校验是否下播了
+                        if live_browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
+                            # print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
+                            #       host, "已下播")
+                            time.sleep(random.randint(20, 60))
+                            break
+                    except NoSuchElementException:
+                        continue
+        except WebDriverException as live_e:
+            print(live_e.msg)
+            print(live_e.stacktrace)
+            try:
+                # 判断页面是否存在
+                live_title = live_browser.title
+                print("页面标题：", live_title)
+            except WebDriverException as live_e:
+                if isinstance(live_e, NoSuchWindowException):
+                    print("页面已经关闭")
+                    live_browser.quit()
+                    live_browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=live_options)
+                    continue
+                else:
+                    print("页面崩溃或无法访问")
+                    continue
+
+
 browser.get('https://live.douyin.com/')
 input("请登录后按回车键继续...")
 while True:
@@ -41,26 +97,7 @@ while True:
     for follow_live in follow_live_lists:
         live_room_url = follow_live.get_attribute('href')
         liver = follow_live.find_element(By.CLASS_NAME, 'mY8V_PPX').text
-        liver_link[liver] = live_room_url
-    time.sleep(1)
-    for liver in liver_link:
-        browser.get(liver_link[liver])
-        time.sleep(1)
-        stream_is_get = False
-        while not stream_is_get:
-            #校验是否关播了
-            for request in browser.requests:
-                # print(request)
-                if ".flv" in str(request):
-                    # 获取接口返回内容
-                    print(str(request))
-                    time.sleep(2)
-                    flv_name = str(request).split('flv')[0]
-                    if flv_name not in live_name:
-                        print("已获取流媒体")
-                        live_name.append(flv_name)
-                        t = Thread(target=download, args=(
-                            str(request), time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime(time.time())) + liver))
-                        t.start()
-                        stream_is_get = True
-                        break
+        through_live_room(live_room_url, liver)
+    time.sleep(random.randint(5, 10))
+
+
