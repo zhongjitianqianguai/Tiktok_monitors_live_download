@@ -106,8 +106,12 @@ while True:
         except NoSuchElementException:
             time.sleep(random.randint(5, 20))
         except WebDriverException as e:
-            print(e.stacktrace)
-            continue
+            print(e.msg)
+            if browser:
+                continue
+            else:
+                browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+                continue
     end_time = time.time()
     print("本次爬取列表中所有主播花费时间：", (end_time - start_time) / 60, "分钟")
     if len(home_link_dict) == len(home_links):
