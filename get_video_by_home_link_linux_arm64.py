@@ -116,6 +116,8 @@ while True:
                     continue
                 else:
                     print("页面崩溃或无法访问")
+                    browser.quit()
+                    browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                     continue
 
     end_time = time.time()
