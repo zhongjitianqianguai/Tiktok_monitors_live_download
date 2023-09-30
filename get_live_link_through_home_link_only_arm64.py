@@ -41,18 +41,23 @@ while True:
                     home_links_dict[liver] = home_browser.current_url
             with open("home_link_need_to_get.txt", "w", encoding='utf-8') as file:
                 pass
+        home_links_dict_tmp = home_links_dict.copy()
         for liver in home_links_dict_after_filter:
-            home_browser.get(home_links_dict_after_filter[liver])
-            liver = home_browser.find_element(By.CLASS_NAME, 'Nu66P_ba').text
-            url = home_browser.find_element(By.XPATH, "//div[@class='RPhIHafP']/a").get_attribute('href')
-            print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播", liver, "正在直播...")
-            time.sleep(random.randint(2, 5))
-            if liver not in live_room_dict:
-                live_room_dict[liver] = url.split("?")[0]
-            with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
-                file.write(json.dumps(live_room_dict, ensure_ascii=False))
-    except NoSuchElementException:
-        time.sleep(random.randint(5, 20))
+            try:
+                home_browser.get(home_links_dict_after_filter[liver])
+                actual_liver = home_browser.find_element(By.CLASS_NAME, 'Nu66P_ba').text
+                if liver != actual_liver:
+                    home_links_dict_tmp[actual_liver] = home_links_dict_after_filter[liver]
+                    del home_links_dict_tmp[liver]
+                url = home_browser.find_element(By.XPATH, "//div[@class='RPhIHafP']/a").get_attribute('href')
+                print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播", actual_liver, "正在直播...")
+                time.sleep(random.randint(2, 5))
+                if actual_liver not in live_room_dict:
+                    live_room_dict[actual_liver] = url.split("?")[0]
+                with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
+                    file.write(json.dumps(live_room_dict, ensure_ascii=False))
+            except NoSuchElementException:
+                time.sleep(random.randint(5, 20))
     except WebDriverException as e:
         print(e.msg)
         try:
@@ -71,5 +76,5 @@ while True:
                 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                 continue
     end_time = time.time()
-    print("本次爬取", len(home_links_dict_after_filter), "个主播主页耗时：", end_time - start_time, "还有",
+    print("本次爬取", len(home_links_dict_after_filter), "个主播主页耗时：", (end_time - start_time)/60, "分钟还有",
           len(home_links_dict) - len(live_room_dict), "个主播直播间未爬取")
