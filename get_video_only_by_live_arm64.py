@@ -78,8 +78,6 @@ while True:
                             live_name.append(flv_name)
                             t = Thread(target=download, args=(str(request), liver))
                             t.start()
-                        browser.quit()
-                        browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                         break
                     else:
                         try:
@@ -91,12 +89,13 @@ while True:
                                 break
                         except NoSuchElementException:
                             continue
-            actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
-            if actual_liver != liver:
-                live_room_dict_tmp.pop(liver)
-                live_room_dict_tmp[actual_liver] = browser.current_url
-                with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
-                    file.write(json.dumps(live_room_dict_tmp, ensure_ascii=False))
+            if not stream_is_get:
+                actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').tex
+                if actual_liver != liver:
+                    live_room_dict_tmp.pop(liver)
+                    live_room_dict_tmp[actual_liver] = browser.current_url
+                    with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
+                        file.write(json.dumps(live_room_dict_tmp, ensure_ascii=False))
     except WebDriverException as e:
         print(e.msg)
         try:
