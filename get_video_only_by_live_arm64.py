@@ -68,9 +68,11 @@ while True:
                     if ".flv" in str(request):
                         # 获取接口返回内容
                         print(str(request))
-                        print("主播", liver, "正在直播...")
                         stream_is_get = True
                         flv_name = str(request).split('.flv')[0]
+                        if flv_name == pre_live_stream:
+                            continue
+                        print("主播", liver, "正在直播...")
                         if flv_name not in live_name:
                             print(time.strftime('%Y-%m-%d_%H:%M:%S',
                                                 time.localtime(time.time())) + "已获取" + liver + "流媒体：")
@@ -78,8 +80,6 @@ while True:
                             t = Thread(target=download, args=(str(request), liver))
                             t.start()
                             pre_live_stream = str(request).split('.flv')[0]
-                        if flv_name != pre_live_stream:
-                            break
                     else:
                         try:
                             # 校验是否下播了
