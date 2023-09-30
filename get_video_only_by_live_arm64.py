@@ -81,6 +81,8 @@ while True:
                             t = Thread(target=download, args=(str(request), liver))
                             t.start()
                             pre_live_stream = str(request).split('.flv')[0]
+                            browser.quit()
+                            browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                             break
                     else:
                         try:
