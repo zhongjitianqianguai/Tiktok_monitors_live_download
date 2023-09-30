@@ -20,6 +20,8 @@ with open("Tiktok_home_link_by_auto_get.txt", "r", encoding='utf-8') as file:
     home_links_dict = eval(file.read())
 live_name = []
 home_links_dict_after_filter = {}
+home_browser.get("https://v.douyin.com/ienMvGbo/")
+input("请在页面中完成人机验证后按回车键继续...")
 while True:
     start_time = time.time()
     with open("Tiktok_live_room_link_by_auto_get.txt", "r", encoding='utf-8') as file:

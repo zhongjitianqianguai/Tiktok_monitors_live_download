@@ -111,5 +111,5 @@ while True:
                 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                 continue
     end_time = time.time()
-    print("本次通过直播间爬取", len(live_room_dict), "主播耗时：", (end_time - start_time)/60, "分钟")
+    print("本次通过直播间爬取", len(live_room_dict), "个主播耗时：", (end_time - start_time)/60, "分钟")
     time.sleep(random.randint(1, 3))
