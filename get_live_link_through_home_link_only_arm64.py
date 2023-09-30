@@ -38,8 +38,10 @@ while True:
                 liver = home_browser.find_element(By.CLASS_NAME, 'Nu66P_ba').text
                 if home_browser.current_url not in home_links_dict.values():
                     home_links_dict[liver] = home_browser.current_url
-            with open("home_link_need_to_get.txt", "w", encoding='utf-8') as file:
+            with open("home_link_need_to_get.txt", "w", encoding='utf-8'):
                 pass
+            with open("Tiktok_home_link_by_auto_get.txt", "w", encoding='utf-8') as file:
+                file.write(json.dumps(home_links_dict, ensure_ascii=False))
         home_links_dict_tmp = home_links_dict.copy()
         for liver in home_links_dict_after_filter:
             try:
