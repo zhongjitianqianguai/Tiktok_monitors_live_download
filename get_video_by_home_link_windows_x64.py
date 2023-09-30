@@ -30,8 +30,8 @@ if __name__ == '__main__':
                        '系阿布甜甜', '你好特别']
     with open("Tiktok_home_link_by_auto_get.txt", "r", encoding='utf-8') as file:
         home_links = eval(file.read())
-    with open('Tiktok_live_room_id.txt') as f:
-        live_links = f.readlines()
+    # with open('Tiktok_live_room_id.txt') as f:
+    #     live_links = f.readlines()
     while True:
         for liver in home_links:
             # for live_link in live_links:

@@ -56,7 +56,7 @@ def through_live_room(live_room_link, host):
     live_options.add_argument("--lang=zh_CN")
     live_options.add_argument("--headless")
     live_browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=live_options)
-    live_browser.set_page_load_timeout(3000)
+    live_browser.set_page_load_timeout(300)
     flv_name = ""
     while True:
         try:
@@ -103,26 +103,19 @@ def through_live_room(live_room_link, host):
 
 
 is_first_time = True
-live_room_opened = []
 
 while True:
-    try:
-        browser.get("https://www.douyin.com/follow")
-        if is_first_time:
-            input("请登录后按回车键继续...")
-            is_first_time = False
-        time.sleep(random.randint(10, 30))
-        follow_live_list = browser.find_element(By.CLASS_NAME, 'X5RsU67Q')
-        follow_live_lists = follow_live_list.find_elements(By.TAG_NAME, 'a')
-        for follow_live in follow_live_lists:
-            live_room_url = follow_live.get_attribute('href')
-            liver = follow_live.find_element(By.CLASS_NAME, 'mY8V_PPX').text
-            if live_room_url in live_room_opened:
-                continue
-            t = Thread(target=through_live_room, args=(live_room_url, liver))
-            time.sleep(random.randint(5, 10))
-            t.start()
-        time.sleep(random.randint(5, 10))
-    except NoSuchElementException:
-        time.sleep(random.randint(5, 10))
-        continue
+    browser.get("https://www.douyin.com/follow")
+    if is_first_time:
+        input("请登录后按回车键继续...")
+        is_first_time = False
+    time.sleep(random.randint(5, 10))
+    follow_live_list = browser.find_element(By.CLASS_NAME, 'X5RsU67Q')
+    follow_live_lists = follow_live_list.find_elements(By.TAG_NAME, 'a')
+    for follow_live in follow_live_lists:
+        live_room_url = follow_live.get_attribute('href')
+        liver = follow_live.find_element(By.CLASS_NAME, 'mY8V_PPX').text
+        through_live_room(live_room_url, liver)
+    time.sleep(random.randint(5, 10))
+
+

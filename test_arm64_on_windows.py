@@ -3,8 +3,7 @@ import random
 import re
 import time
 from threading import Thread
-from urllib.error import HTTPError
-
+import json
 import wget
 from selenium.common import NoSuchElementException, WebDriverException, NoSuchWindowException
 from selenium.webdriver.chrome.options import Options
@@ -17,15 +16,7 @@ def download(live_url, filename):
     print('开始下载', filename)
     # 过滤英文和汉字以外的字符
     filename = re.sub(r'[^\u4e00-\u9fa5a-zA-Z]', '', filename)
-    try:
-        wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
-    except HTTPError:
-        print("下载失败，尝试重新下载...")
-        try:
-            wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
-        except HTTPError:
-            print("下载失败，尝试重新下载...")
-            wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
+    wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
     print(time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + '下载完成', filename)
     cmd = ("ffmpeg -i /media/sd/Download/" + filename + ".flv -vcodec copy -acodec "
                                                         "copy /media/sd/Download/" + time.strftime('%Y-%m-%d-%H-%M-%S',
@@ -37,88 +28,125 @@ def download(live_url, filename):
     print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
 
 
+def only_live(live_dict):
+    live_browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
+    live_browser.set_page_load_timeout(300)
+
+    for liver in live_dict:
+        live_browser.get(live_dict[liver])
+        stream_is_get = False
+        is_living = True
+        while not stream_is_get and is_living:
+            for request in live_browser.requests:
+                # print(request)
+                if ".flv" in str(request):
+                    # 获取接口返回内容
+                    print(str(request))
+                    stream_is_get = True
+                    time.sleep(2)
+                    flv_name = str(request).split('.flv')[0]
+                    if flv_name not in live_name:
+                        print(time.strftime('%Y-%m-%d_%H:%M:%S',
+                                            time.localtime(time.time())) + "已获取" + liver + "流媒体：")
+                        live_name.append(flv_name)
+                        t = Thread(target=download, args=(str(request), liver))
+                        t.start()
+                    break
+                else:
+                    try:
+                        # 校验是否下播了
+                        if live_browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
+                            print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
+                                  liver, "已下播")
+                            is_living = False
+                            break
+                    except NoSuchElementException:
+                        continue
+
+
+def only_home(home_dict):
+    home_browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
+    home_browser.set_page_load_timeout(300)
+    for liver in home_dict:
+        try:
+            # if liver not in need_not_to_get:
+            #     browser.get(home_links[liver])
+            home_browser.get(home_dict[liver])
+            # driver.get('live.douyin.com/'+live_links)
+            liver = home_browser.find_element(By.CLASS_NAME, 'Nu66P_ba').text
+            url = home_browser.find_element(By.XPATH, "//div[@class='RPhIHafP']/a").get_attribute('href')
+            print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播", liver, "正在直播...")
+            time.sleep(random.randint(2, 5))
+            driver = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+            driver.get(url.split("?")[0])
+            if liver not in live_room_dict:
+                live_room_dict[liver] = url.split("?")[0]
+            # 遍历请求列表
+            stream_is_get = False
+            is_living = True
+            while not stream_is_get and is_living:
+                for request in driver.requests:
+                    # print(request)
+                    if ".flv" in str(request):
+                        # 获取接口返回内容
+                        print(str(request))
+                        stream_is_get = True
+                        time.sleep(2)
+                        flv_name = str(request).split('.flv')[0]
+                        if flv_name not in live_name:
+                            print(time.strftime('%Y-%m-%d_%H:%M:%S',
+                                                time.localtime(time.time())) + "已获取" + liver + "流媒体：")
+                            live_name.append(flv_name)
+                            t = Thread(target=download, args=(str(request), liver))
+                            t.start()
+                        driver.quit()
+                        break
+                    else:
+                        try:
+                            # 校验是否下播了
+                            if driver.find_element(By.CLASS_NAME, 'YQXSUEUr'):
+                                print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
+                                      liver, "已下播")
+                                driver.quit()
+                                is_living = False
+                                break
+                        except NoSuchElementException:
+                            continue
+        except NoSuchElementException:
+            time.sleep(random.randint(5, 20))
+        except WebDriverException as e:
+            print(e.msg)
+            try:
+                # 判断页面是否存在
+                title = home_browser.title
+                print("页面标题：", title)
+            except WebDriverException as e:
+                if isinstance(e, NoSuchWindowException):
+                    print("页面已经关闭")
+                    home_browser.quit()
+                    browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+                    continue
+                else:
+                    print("页面崩溃或无法访问")
+                    home_browser.quit()
+                    browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+                    continue
+
+
 options = Options()
 # 去掉"chrome正受到自动化测试软件的控制"的提示条
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
-browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
-browser.set_page_load_timeout(300)
 
+with open("Tiktok_live_room_link_by_auto_get.txt", "r", encoding='utf-8') as file:
+    live_room_dict = eval(file.read())
 
-def through_live_room(live_room_link, host):
-    live_options = Options()
-    # 去掉"chrome正受到自动化测试软件的控制"的提示条
-    live_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    live_options.add_experimental_option('useAutomationExtension', False)
-    live_options.add_argument("--no-sandbox")
-    live_options.add_argument("--lang=zh_CN")
-    # live_options.add_argument("--headless")
-    live_browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=live_options)
-    live_browser.set_page_load_timeout(300)
-    flv_name = ""
-    while True:
-        try:
-            live_browser.get(live_room_link)
-            for request in live_browser.requests:
-                if ".flv" in str(request):
-                    # 获取接口返回内容
-                    print(str(request))
-                    time.sleep(2)
-                    if flv_name is not str(request).split('.flv')[0]:
-                        print(time.strftime('%Y-%m-%d_%H:%M:%S',
-                                            time.localtime(time.time())), "已获取", host, "流媒体：")
-                        flv_name = str(request).split('.flv')[0]
-                        live_thread = Thread(target=download, args=(str(request), host))
-                        live_thread.start()
-                        time.sleep(random.randint(30, 90))
-                    break
-                else:
-                    try:
-                        # 校验是否下播了
-                        if live_browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
-                            # print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
-                            #       host, "已下播")
-                            time.sleep(random.randint(20, 60))
-                            break
-                    except NoSuchElementException:
-                        continue
-        except WebDriverException as live_e:
-            print(live_e.msg)
-            print(live_e.stacktrace)
-            try:
-                # 判断页面是否存在
-                live_title = live_browser.title
-                print("页面标题：", live_title)
-            except WebDriverException as live_e:
-                if isinstance(live_e, NoSuchWindowException):
-                    print("页面已经关闭")
-                    live_browser.quit()
-                    live_browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=live_options)
-                    continue
-                else:
-                    print("页面崩溃或无法访问")
-                    continue
-
-
-is_first_time = True
-
-while True:
-    try:
-        browser.get("https://www.douyin.com/follow")
-        if is_first_time:
-            input("请登录后按回车键继续...")
-            is_first_time = False
-        time.sleep(random.randint(10, 30))
-        follow_live_list = browser.find_element(By.CLASS_NAME, 'X5RsU67Q')
-        follow_live_lists = follow_live_list.find_elements(By.TAG_NAME, 'a')
-        for follow_live in follow_live_lists:
-            live_room_url = follow_live.get_attribute('href')
-            liver = follow_live.find_element(By.CLASS_NAME, 'mY8V_PPX').text
-            t = Thread(target=through_live_room, args=(live_room_url, liver))
-            t.start()
-        time.sleep(random.randint(5, 10))
-    except NoSuchElementException:
-        time.sleep(random.randint(5, 10))
-        continue
+with open("Tiktok_home_link_by_auto_get.txt", "r", encoding='utf-8') as file:
+    home_links_dict = eval(file.read())
+live_name = []
+home_links_dict_after_filter = {}
+for home_link in home_links_dict:
+    if home_link not in live_room_dict:
+        home_links_dict_after_filter[home_link] = home_links_dict[home_link]
