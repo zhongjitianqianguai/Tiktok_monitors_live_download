@@ -40,7 +40,7 @@ live_name = []
 
 while True:
     start_time = time.time()
-    with open('live_link_need_to_get.txt') as f:
+    with open('live_link_need_to_get.txt', "r") as f:
         live_links_need_to_get = f.readlines()
     try:
         with open("Tiktok_live_room_link_by_auto_get.txt", "r", encoding='utf-8') as file:
@@ -51,6 +51,8 @@ while True:
                 liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
                 if browser.current_url not in live_room_dict.values():
                     live_room_dict[liver] = browser.current_url
+            with open('live_link_need_to_get.txt', "w") as f:
+                pass
         live_room_dict_tmp = live_room_dict.copy()
         with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
             file.write(json.dumps(live_room_dict, ensure_ascii=False))
@@ -109,4 +111,4 @@ while True:
                 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                 continue
     end_time = time.time()
-    print("本次通过直播间爬取所有在列主播耗时：", end_time - start_time)
+    print("本次通过直播间爬取", len(live_room_dict), "主播耗时：", end_time - start_time)

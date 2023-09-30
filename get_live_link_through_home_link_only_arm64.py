@@ -39,7 +39,7 @@ while True:
                 liver = home_browser.find_element(By.CLASS_NAME, 'Nu66P_ba').text
                 if home_browser.current_url not in home_links_dict.values():
                     home_links_dict[liver] = home_browser.current_url
-            with open("home_link_need_to_get.txt", "r", encoding='utf-8') as file:
+            with open("home_link_need_to_get.txt", "w", encoding='utf-8') as file:
                 pass
         for liver in home_links_dict_after_filter:
             home_browser.get(home_links_dict_after_filter[liver])
