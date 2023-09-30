@@ -37,7 +37,7 @@ options.add_argument("--lang=zh_CN")
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
 browser.set_page_load_timeout(300)
 live_name = []
-
+pre_live_stream = ""
 while True:
     start_time = time.time()
     with open('live_link_need_to_get.txt', "r") as f:
@@ -77,7 +77,9 @@ while True:
                             live_name.append(flv_name)
                             t = Thread(target=download, args=(str(request), liver))
                             t.start()
-                        # break
+                            pre_live_stream = str(request).split('.flv')[0]
+                        if flv_name == pre_live_stream:
+                            break
                     else:
                         try:
                             # 校验是否下播了
