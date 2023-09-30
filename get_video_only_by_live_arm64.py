@@ -78,7 +78,7 @@ while True:
                             t = Thread(target=download, args=(str(request), liver))
                             t.start()
                             pre_live_stream = str(request).split('.flv')[0]
-                        if flv_name == pre_live_stream:
+                        if flv_name != pre_live_stream:
                             break
                     else:
                         try:
