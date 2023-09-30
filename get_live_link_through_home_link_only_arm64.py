@@ -10,7 +10,6 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from seleniumwire import webdriver
 
-
 options = Options()
 # 去掉"chrome正受到自动化测试软件的控制"的提示条
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -25,6 +24,7 @@ with open("Tiktok_home_link_by_auto_get.txt", "r", encoding='utf-8') as file:
 live_name = []
 home_links_dict_after_filter = {}
 while True:
+    start_time = time.time()
     with open("Tiktok_live_room_link_by_auto_get.txt", "r", encoding='utf-8') as file:
         live_room_dict = eval(file.read())
     for home_link in home_links_dict:
@@ -70,3 +70,6 @@ while True:
                 home_browser.quit()
                 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                 continue
+    end_time = time.time()
+    print("本次爬取", len(home_links_dict_after_filter), "个主播主页耗时：", end_time - start_time, "还有",
+          len(home_links_dict) - len(live_room_dict), "个主播直播间未爬取")
