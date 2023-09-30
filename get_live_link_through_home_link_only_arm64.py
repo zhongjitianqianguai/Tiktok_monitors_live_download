@@ -26,6 +26,7 @@ while True:
     with open("Tiktok_live_room_link_by_auto_get.txt", "r", encoding='utf-8') as file:
         live_room_dict = eval(file.read())
     home_links_only_keys = home_links_dict.keys() - live_room_dict.keys()
+    print("home_links_dict 中独有的键名：", home_links_only_keys)
     with open("home_link_need_to_get.txt", "r", encoding='utf-8') as file:
         home_links_need_to_get = file.readlines()
     try:
@@ -39,14 +40,16 @@ while True:
                 pass
             with open("Tiktok_home_link_by_auto_get.txt", "w", encoding='utf-8') as file:
                 file.write(json.dumps(home_links_dict, ensure_ascii=False))
-        home_links_dict_tmp = home_links_dict.copy()
+
         for liver in home_links_only_keys:
             try:
                 home_browser.get(home_links_dict[liver])
                 actual_liver = home_browser.find_element(By.CLASS_NAME, 'Nu66P_ba').text
                 if liver != actual_liver:
-                    home_links_dict_tmp[actual_liver] = home_links_dict[liver]
-                    del home_links_dict_tmp[liver]
+                    home_links_dict[actual_liver] = home_links_dict[liver]
+                    del home_links_dict[liver]
+                    with open("Tiktok_home_link_by_auto_get.txt", "w", encoding='utf-8') as file:
+                        file.write(json.dumps(home_links_dict, ensure_ascii=False))
                 url = home_browser.find_element(By.XPATH, "//div[@class='RPhIHafP']/a").get_attribute('href')
                 print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播", actual_liver, "正在直播...")
                 time.sleep(random.randint(2, 5))
