@@ -67,26 +67,23 @@ while True:
                     # print(request)
                     if ".flv" in str(request):
                         # 获取接口返回内容
+                        flv_name = str(request).split('.flv')[0].split('/')[-1]
                         stream_is_get = True
-                        flv_name = str(request).split('.flv')[0]
-                        if flv_name == pre_live_stream:
-                            browser.refresh()
-                            continue
-                        print(str(request))
                         actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
                         if actual_liver != liver:
                             live_room_dict_tmp.pop(liver)
                             live_room_dict_tmp[actual_liver] = browser.current_url
                             with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
                                 file.write(json.dumps(live_room_dict_tmp, ensure_ascii=False))
-                        print("主播", actual_liver, "正在直播...")
                         if flv_name not in live_name:
+                            print("主播", actual_liver, "正在直播...")
                             print(time.strftime('%Y-%m-%d_%H:%M:%S',
                                                 time.localtime(time.time())) + "已获取" + actual_liver + "流媒体：")
+                            print(str(request))
                             live_name.append(flv_name)
                             t = Thread(target=download, args=(str(request), actual_liver))
                             t.start()
-                            pre_live_stream = str(request).split('.flv')[0]
+                            pre_live_stream = str(request).split('.flv')[0].split('/')[-1]
                             browser.quit()
                             browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                             break
