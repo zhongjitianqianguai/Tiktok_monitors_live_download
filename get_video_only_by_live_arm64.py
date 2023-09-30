@@ -60,7 +60,6 @@ while True:
             file.write(json.dumps(live_room_dict, ensure_ascii=False))
         for liver in live_room_dict:
             browser.get(live_room_dict[liver])
-            time.sleep(random.randint(1, 3))
             stream_is_get = False
             is_living = True
             while not stream_is_get and is_living:
@@ -113,5 +112,7 @@ while True:
                 browser.quit()
                 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                 continue
+    finally:
+        time.sleep(random.randint(1, 3))
     end_time = time.time()
     print("本次通过直播间爬取", len(live_room_dict), "个主播耗时：", (end_time - start_time)/60, "分钟")
