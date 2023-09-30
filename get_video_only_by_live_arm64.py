@@ -81,6 +81,7 @@ while True:
                             t = Thread(target=download, args=(str(request), liver))
                             t.start()
                             pre_live_stream = str(request).split('.flv')[0]
+                            break
                     else:
                         try:
                             # 校验是否下播了
