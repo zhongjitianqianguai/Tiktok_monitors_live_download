@@ -78,6 +78,8 @@ while True:
                             live_name.append(flv_name)
                             t = Thread(target=download, args=(str(request), liver))
                             t.start()
+                        browser.quit()
+                        browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                         break
                     else:
                         try:
