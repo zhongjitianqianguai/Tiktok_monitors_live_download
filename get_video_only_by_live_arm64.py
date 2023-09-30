@@ -9,8 +9,9 @@ from selenium.common import NoSuchElementException, WebDriverException, NoSuchWi
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
 from seleniumwire import webdriver
-
+from selenium.webdriver.support import expected_conditions as EC
 
 def download(live_url, filename):
     print('开始下载', filename)
@@ -48,6 +49,7 @@ while True:
         if len(live_links_need_to_get) > 0:
             for live_link in live_links_need_to_get:
                 browser.get(live_link)
+                WebDriverWait(browser, 20, 0.5).until(EC.presence_of_element_located((By.CLASS_NAME, 'st8eGKi4')))
                 liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
                 if browser.current_url not in live_room_dict.values():
                     live_room_dict[liver] = browser.current_url
