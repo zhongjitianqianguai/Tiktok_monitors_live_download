@@ -17,8 +17,7 @@ options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
-
-home_browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
+home_browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
 home_browser.set_page_load_timeout(300)
 
 with open("Tiktok_home_link_by_auto_get.txt", "r", encoding='utf-8') as file:
