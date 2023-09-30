@@ -1,9 +1,6 @@
-import os
 import random
-import re
 import time
 import json
-import wget
 from selenium.common import NoSuchElementException, WebDriverException, NoSuchWindowException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
