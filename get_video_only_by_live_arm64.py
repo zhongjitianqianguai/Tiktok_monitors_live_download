@@ -77,7 +77,7 @@ while True:
                             live_name.append(flv_name)
                             t = Thread(target=download, args=(str(request), liver))
                             t.start()
-                        break
+                        # break
                     else:
                         try:
                             # 校验是否下播了

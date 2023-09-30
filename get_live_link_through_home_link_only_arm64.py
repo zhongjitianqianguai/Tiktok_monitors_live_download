@@ -26,9 +26,9 @@ while True:
     start_time = time.time()
     with open("Tiktok_live_room_link_by_auto_get.txt", "r", encoding='utf-8') as file:
         live_room_dict = eval(file.read())
-    for home_link in home_links_dict:
-        if home_link not in live_room_dict:
-            home_links_dict_after_filter[home_link] = home_links_dict[home_link]
+    for liver_home in home_links_dict:
+        if liver_home not in live_room_dict:
+            home_links_dict_after_filter[liver_home] = home_links_dict[liver_home]
     with open("home_link_need_to_get.txt", "r", encoding='utf-8') as file:
         home_links_need_to_get = file.readlines()
     try:
