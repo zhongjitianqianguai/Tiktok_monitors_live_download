@@ -51,12 +51,19 @@ while True:
                 liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
                 if browser.current_url not in live_room_dict.values():
                     live_room_dict[liver] = browser.current_url
+        live_room_dict_tmp = live_room_dict.copy()
         with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
             file.write(json.dumps(live_room_dict, ensure_ascii=False))
         for liver in live_room_dict:
             browser.get(live_room_dict[liver])
             stream_is_get = False
             is_living = True
+            actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
+            if actual_liver != liver:
+                live_room_dict_tmp.pop(liver)
+                live_room_dict_tmp[actual_liver] = browser.current_url
+                with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
+                    file.write(json.dumps(live_room_dict_tmp, ensure_ascii=False))
             while not stream_is_get and is_living:
                 for request in browser.requests:
                     # print(request)
