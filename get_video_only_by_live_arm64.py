@@ -70,7 +70,6 @@ while True:
                         print(str(request))
                         print("主播", liver, "正在直播...")
                         stream_is_get = True
-                        time.sleep(2)
                         flv_name = str(request).split('.flv')[0]
                         if flv_name not in live_name:
                             print(time.strftime('%Y-%m-%d_%H:%M:%S',
@@ -90,7 +89,7 @@ while True:
                         except NoSuchElementException:
                             continue
             if not stream_is_get:
-                actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').tex
+                actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
                 if actual_liver != liver:
                     live_room_dict_tmp.pop(liver)
                     live_room_dict_tmp[actual_liver] = browser.current_url
