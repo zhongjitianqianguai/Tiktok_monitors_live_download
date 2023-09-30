@@ -67,11 +67,12 @@ while True:
                     # print(request)
                     if ".flv" in str(request):
                         # 获取接口返回内容
-                        print(str(request))
                         stream_is_get = True
                         flv_name = str(request).split('.flv')[0]
                         if flv_name == pre_live_stream:
+                            browser.refresh()
                             continue
+                        print(str(request))
                         print("主播", liver, "正在直播...")
                         if flv_name not in live_name:
                             print(time.strftime('%Y-%m-%d_%H:%M:%S',
