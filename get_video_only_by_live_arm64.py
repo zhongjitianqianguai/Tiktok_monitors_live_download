@@ -74,6 +74,7 @@ while True:
                     if ".flv" in str(request):
                         # 获取接口返回内容
                         print(str(request))
+                        print("主播", liver, "正在直播...")
                         stream_is_get = True
                         time.sleep(2)
                         flv_name = str(request).split('.flv')[0]
