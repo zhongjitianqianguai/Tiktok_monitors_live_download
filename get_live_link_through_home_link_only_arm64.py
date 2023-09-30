@@ -19,16 +19,13 @@ home_browser.set_page_load_timeout(300)
 with open("Tiktok_home_link_by_auto_get.txt", "r", encoding='utf-8') as file:
     home_links_dict = eval(file.read())
 live_name = []
-home_links_dict_after_filter = {}
 home_browser.get("https://v.douyin.com/ienMvGbo/")
 input("请在页面中完成人机验证后按回车键继续...")
 while True:
     start_time = time.time()
     with open("Tiktok_live_room_link_by_auto_get.txt", "r", encoding='utf-8') as file:
         live_room_dict = eval(file.read())
-    for liver_home in home_links_dict:
-        if liver_home not in live_room_dict:
-            home_links_dict_after_filter[liver_home] = home_links_dict[liver_home]
+    home_links_only_keys = home_links_dict.keys() - live_room_dict.keys()
     with open("home_link_need_to_get.txt", "r", encoding='utf-8') as file:
         home_links_need_to_get = file.readlines()
     try:
@@ -43,12 +40,12 @@ while True:
             with open("Tiktok_home_link_by_auto_get.txt", "w", encoding='utf-8') as file:
                 file.write(json.dumps(home_links_dict, ensure_ascii=False))
         home_links_dict_tmp = home_links_dict.copy()
-        for liver in home_links_dict_after_filter:
+        for liver in home_links_only_keys:
             try:
-                home_browser.get(home_links_dict_after_filter[liver])
+                home_browser.get(home_links_dict[liver])
                 actual_liver = home_browser.find_element(By.CLASS_NAME, 'Nu66P_ba').text
                 if liver != actual_liver:
-                    home_links_dict_tmp[actual_liver] = home_links_dict_after_filter[liver]
+                    home_links_dict_tmp[actual_liver] = home_links_dict[liver]
                     del home_links_dict_tmp[liver]
                 url = home_browser.find_element(By.XPATH, "//div[@class='RPhIHafP']/a").get_attribute('href')
                 print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播", actual_liver, "正在直播...")
@@ -77,5 +74,5 @@ while True:
                 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                 continue
     end_time = time.time()
-    print("本次爬取", len(home_links_dict_after_filter), "个主播主页耗时：", (end_time - start_time)/60, "分钟还有",
+    print("本次爬取", len(home_links_only_keys), "个主播主页耗时：", (end_time - start_time)/60, "分钟还有",
           len(home_links_dict) - len(live_room_dict), "个主播直播间未爬取")
