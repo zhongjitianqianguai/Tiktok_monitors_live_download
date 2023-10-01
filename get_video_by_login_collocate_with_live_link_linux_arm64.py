@@ -64,7 +64,8 @@ while True:
                     live_room_dict.pop(old_liver)
             with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
                 file.write(json.dumps(live_room_dict, ensure_ascii=False))
-    common_dict = live_room_dict - (live_room_dict - is_living_dict)
+    common_dict = {k: is_living_dict[k] for k in is_living_dict.keys() & live_room_dict.keys()
+                   if is_living_dict[k] == live_room_dict[k]}
     for liver in common_dict:
         try:
             browser.get(common_dict[liver])
