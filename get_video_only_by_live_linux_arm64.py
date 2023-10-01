@@ -43,7 +43,9 @@ options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 options.add_argument("--shm-size=2048m")
-browser = uc.Chrome(driver_executable_path="usr/bin/chromedriver", options=options)
+# cp /usr/bin/chromedriver /root/.local/share/undetected_chromedriver/undetected_chromedriver_copy
+browser = uc.Chrome(driver_executable_path="/root/.local/share/undetected_chromedriver/undetected_chromedriver_copy",
+                    options=options)
 browser.set_page_load_timeout(300)
 browser.scopes = [
     '.*flv.*',
