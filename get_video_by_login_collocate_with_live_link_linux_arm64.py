@@ -46,6 +46,7 @@ with open("Tiktok_live_room_link_by_auto_get.txt", "r", encoding='utf-8') as fil
 is_first_time = True
 live_name = []
 while True:
+    start_time = time.time()
     browser.get("https://www.douyin.com/follow")
     if is_first_time:
         input("请登录后按回车键继续...")
@@ -119,5 +120,6 @@ while True:
                 browser.quit()
                 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                 continue
-
+    end_time = time.time()
+    print("本次爬取在直播主播", len(common_dict), "个耗时：", (end_time - start_time) / 60, "分钟")
     time.sleep(random.randint(5, 10))
