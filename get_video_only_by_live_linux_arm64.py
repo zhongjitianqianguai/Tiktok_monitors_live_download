@@ -30,10 +30,7 @@ def download(live_url, filename):
     print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
 
 
-def interceptor(req):
-    # Block PNG, JPEG and GIF images
-    if req.path.endswith(('.png', '.jpg', '.gif')):
-        req.abort()
+
 
 
 options = Options()
@@ -48,7 +45,6 @@ browser.set_page_load_timeout(300)
 browser.scopes = [
     '.*flv.*',
 ]
-browser.request_interceptor = interceptor
 live_name = []
 pre_live_stream = ""
 while True:
