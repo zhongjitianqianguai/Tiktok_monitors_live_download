@@ -43,7 +43,7 @@ options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 options.add_argument("--shm-size=2048m")
-browser = uc.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+browser = uc.Chrome( options=options)
 browser.set_page_load_timeout(300)
 browser.scopes = [
     '.*flv.*',
