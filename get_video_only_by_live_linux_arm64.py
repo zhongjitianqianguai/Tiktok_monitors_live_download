@@ -6,12 +6,12 @@ import time
 from threading import Thread
 import wget
 from selenium.common import NoSuchElementException, WebDriverException, NoSuchWindowException
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from seleniumwire import webdriver
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions as ec
+import seleniumwire.undetected_chromedriver as uc
 
 
 def download(live_url, filename):
@@ -30,15 +30,25 @@ def download(live_url, filename):
     print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
 
 
-options = Options()
+def interceptor(req):
+    # Block PNG, JPEG and GIF images
+    if req.path.endswith(('.png', '.jpg', '.gif')):
+        req.abort()
+
+
+options = uc.ChromeOptions()
 # 去掉"chrome正受到自动化测试软件的控制"的提示条
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 options.add_argument("--shm-size=2048m")
-browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+browser = uc.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
 browser.set_page_load_timeout(300)
+browser.scopes = [
+    '.*flv.*',
+]
+browser.request_interceptor = interceptor
 live_name = []
 pre_live_stream = ""
 while True:
@@ -52,7 +62,7 @@ while True:
         if len(live_links_need_to_get) > 0:
             for live_link in live_links_need_to_get:
                 browser.get(live_link)
-                WebDriverWait(browser, 20, 0.5).until(EC.presence_of_element_located((By.CLASS_NAME, 'st8eGKi4')))
+                WebDriverWait(browser, 20, 0.5).until(ec.presence_of_element_located((By.CLASS_NAME, 'st8eGKi4')))
                 liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
                 if browser.current_url not in live_room_dict.values():
                     live_room_dict[liver] = browser.current_url
@@ -92,7 +102,7 @@ while True:
                             t.start()
                             pre_live_stream = str(request).split('.flv')[0].split('/')[-1]
                             browser.quit()
-                            browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+                            browser = uc.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                             stream_end_time = time.time()
                             print("本次抓取", actual_liver, "流媒体耗时：", (stream_end_time - stream_start_time) / 60,
                                   "分钟")
@@ -124,12 +134,12 @@ while True:
             if isinstance(e, NoSuchWindowException):
                 print("页面已经关闭")
                 browser.quit()
-                browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+                browser = uc.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                 continue
             else:
                 print("页面崩溃或无法访问")
                 browser.quit()
-                browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+                browser = uc.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                 continue
     finally:
         time.sleep(random.randint(1, 3))
