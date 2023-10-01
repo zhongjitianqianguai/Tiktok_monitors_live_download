@@ -6,12 +6,12 @@ import time
 from threading import Thread
 import wget
 from selenium.common import NoSuchElementException, WebDriverException, NoSuchWindowException
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from seleniumwire import webdriver
 from selenium.webdriver.support import expected_conditions as ec
-import seleniumwire.undetected_chromedriver as uc
 
 
 def download(live_url, filename):
@@ -36,16 +36,14 @@ def interceptor(req):
         req.abort()
 
 
-options = uc.ChromeOptions()
+options = Options()
 # 去掉"chrome正受到自动化测试软件的控制"的提示条
-# options.add_experimental_option("excludeSwitches", ["enable-automation"])
-# options.add_experimental_option('useAutomationExtension', False)
+options.add_experimental_option("excludeSwitches", ["enable-automation"])
+options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 options.add_argument("--shm-size=2048m")
-# cp /usr/bin/chromedriver /root/.local/share/undetected_chromedriver/undetected_chromedriver_copy
-browser = uc.Chrome(driver_executable_path="/root/.local/share/undetected_chromedriver/undetected_chromedriver_copy",
-                    options=options,version_main=115)
+browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
 browser.set_page_load_timeout(300)
 browser.scopes = [
     '.*flv.*',
@@ -104,7 +102,7 @@ while True:
                             t.start()
                             pre_live_stream = str(request).split('.flv')[0].split('/')[-1]
                             browser.quit()
-                            browser = uc.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+                            browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                             stream_end_time = time.time()
                             print("本次抓取", actual_liver, "流媒体耗时：", (stream_end_time - stream_start_time) / 60,
                                   "分钟")
@@ -136,12 +134,12 @@ while True:
             if isinstance(e, NoSuchWindowException):
                 print("页面已经关闭")
                 browser.quit()
-                browser = uc.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+                browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                 continue
             else:
                 print("页面崩溃或无法访问")
                 browser.quit()
-                browser = uc.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+                browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                 continue
     finally:
         time.sleep(random.randint(1, 3))
