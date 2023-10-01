@@ -78,5 +78,4 @@ while True:
                 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                 continue
     end_time = time.time()
-    print("本次爬取", len(home_links_only_keys), "个主播主页耗时：", (end_time - start_time)/60, "分钟还有",
-          len(home_links_dict) - len(live_room_dict), "个主播直播间未爬取")
+    print("本次爬取", len(home_links_only_keys), "个主播主页耗时：", (end_time - start_time)/60, "分钟")

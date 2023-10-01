@@ -1,17 +1,16 @@
-import json
 import os
 import random
 import re
 import time
 from threading import Thread
+import json
 import wget
 from selenium.common import NoSuchElementException, WebDriverException, NoSuchWindowException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
 from seleniumwire import webdriver
-from selenium.webdriver.support import expected_conditions as EC
+
 
 def download(live_url, filename):
     print('开始下载', filename)
@@ -35,33 +34,40 @@ options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
+options.add_argument("--shm-size=2048m")
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
 browser.set_page_load_timeout(300)
+
+with open("Tiktok_live_room_link_by_auto_get.txt", "r", encoding='utf-8') as file:
+    live_room_dict = eval(file.read())
+
+is_first_time = True
 live_name = []
-pre_live_stream = ""
 while True:
-    start_time = time.time()
-    with open('live_link_need_to_get.txt', "r") as f:
-        live_links_need_to_get = f.readlines()
-    try:
-        with open("Tiktok_live_room_link_by_auto_get.txt", "r", encoding='utf-8') as file:
-            live_room_dict = eval(file.read())
-        if len(live_links_need_to_get) > 0:
-            for live_link in live_links_need_to_get:
-                browser.get(live_link)
-                WebDriverWait(browser, 20, 0.5).until(EC.presence_of_element_located((By.CLASS_NAME, 'st8eGKi4')))
-                liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
-                if browser.current_url not in live_room_dict.values():
-                    live_room_dict[liver] = browser.current_url
-            with open('live_link_need_to_get.txt', "w"):
-                pass
+    browser.get("https://www.douyin.com/follow")
+    if is_first_time:
+        input("请登录后按回车键继续...")
+        is_first_time = False
+    time.sleep(random.randint(5, 10))
+    follow_live_list = browser.find_element(By.CLASS_NAME, 'X5RsU67Q')
+    follow_live_link_lists = follow_live_list.find_elements(By.TAG_NAME, 'a')
+    is_living_dict = {}
+    for follow_live in follow_live_link_lists:
+        live_room_url = follow_live.get_attribute('href').split("?")[0]
+        liver = follow_live.find_element(By.CLASS_NAME, 'mY8V_PPX').text
+        is_living_dict[liver] = live_room_url
+    for liver in is_living_dict:
+        if is_living_dict[liver] in live_room_dict.values() and liver not in live_room_dict.keys():
+            live_room_dict[liver] = is_living_dict[liver]
+            for old_liver in live_room_dict:
+                if live_room_dict[old_liver] == is_living_dict[liver]:
+                    live_room_dict.pop(old_liver)
             with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
                 file.write(json.dumps(live_room_dict, ensure_ascii=False))
-        live_room_dict_tmp = live_room_dict.copy()
-        with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
-            file.write(json.dumps(live_room_dict, ensure_ascii=False))
-        for liver in live_room_dict:
-            browser.get(live_room_dict[liver])
+    common_dict = live_room_dict - (live_room_dict - is_living_dict)
+    for liver in common_dict:
+        try:
+            browser.get(common_dict[liver])
             stream_is_get = False
             is_living = True
             while not stream_is_get and is_living:
@@ -71,19 +77,13 @@ while True:
                         # 获取接口返回内容
                         flv_name = str(request).split('.flv')[0].split('/')[-1]
                         stream_is_get = True
-                        actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
-                        if actual_liver != liver:
-                            live_room_dict_tmp.pop(liver)
-                            live_room_dict_tmp[actual_liver] = browser.current_url
-                            with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
-                                file.write(json.dumps(live_room_dict_tmp, ensure_ascii=False))
                         if flv_name not in live_name:
-                            print("主播", actual_liver, "正在直播...")
+                            print("主播", liver, "正在直播...")
                             print(time.strftime('%Y-%m-%d_%H:%M:%S',
-                                                time.localtime(time.time())) + "已获取" + actual_liver + "流媒体：")
+                                                time.localtime(time.time())) + "已获取" + liver + "流媒体：")
                             print(str(request))
                             live_name.append(flv_name)
-                            t = Thread(target=download, args=(str(request), actual_liver))
+                            t = Thread(target=download, args=(str(request), liver))
                             t.start()
                             pre_live_stream = str(request).split('.flv')[0].split('/')[-1]
                             browser.quit()
@@ -94,20 +94,13 @@ while True:
                             # 校验是否下播了
                             if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
                                 print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
-                                      liver, "未开播")
+                                      liver, "下播了")
                                 is_living = False
                                 break
                         except NoSuchElementException:
                             continue
-            if not stream_is_get:
-                actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
-                if actual_liver != liver:
-                    live_room_dict_tmp.pop(liver)
-                    live_room_dict_tmp[actual_liver] = browser.current_url
-                    with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
-                        file.write(json.dumps(live_room_dict_tmp, ensure_ascii=False))
-    except WebDriverException as e:
-        print(e.msg)
+        except WebDriverException as e:
+            print(e.msg)
         try:
             # 判断页面是否存在
             title = browser.title
@@ -123,7 +116,5 @@ while True:
                 browser.quit()
                 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                 continue
-    finally:
-        time.sleep(random.randint(1, 3))
-    end_time = time.time()
-    print("本次通过直播间爬取", len(live_room_dict), "个主播耗时：", (end_time - start_time)/60, "分钟")
+
+    time.sleep(random.randint(5, 10))
