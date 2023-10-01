@@ -45,7 +45,7 @@ options.add_argument("--lang=zh_CN")
 options.add_argument("--shm-size=2048m")
 # cp /usr/bin/chromedriver /root/.local/share/undetected_chromedriver/undetected_chromedriver_copy
 browser = uc.Chrome(driver_executable_path="/root/.local/share/undetected_chromedriver/undetected_chromedriver_copy",
-                    options=options)
+                    options=options,version_main=115)
 browser.set_page_load_timeout(300)
 browser.scopes = [
     '.*flv.*',
