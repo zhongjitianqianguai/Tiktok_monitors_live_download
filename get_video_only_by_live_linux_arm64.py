@@ -42,6 +42,7 @@ browser.set_page_load_timeout(300)
 live_name = []
 pre_live_stream = ""
 while True:
+    living_count = 0
     start_time = time.time()
     with open('live_link_need_to_get.txt', "r") as f:
         live_links_need_to_get = f.readlines()
@@ -67,9 +68,11 @@ while True:
             stream_is_get = False
             is_living = True
             while not stream_is_get and is_living:
+                stream_start_time = time.time()
                 for request in browser.requests:
                     # print(request)
                     if ".flv" in str(request):
+                        living_count += 1
                         # 获取接口返回内容
                         flv_name = str(request).split('.flv')[0].split('/')[-1]
                         stream_is_get = True
@@ -90,6 +93,9 @@ while True:
                             pre_live_stream = str(request).split('.flv')[0].split('/')[-1]
                             browser.quit()
                             browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+                            stream_end_time = time.time()
+                            print("本次抓取", actual_liver, "流媒体耗时：", (stream_end_time - stream_start_time) / 60,
+                                  "分钟")
                             break
                     else:
                         try:
@@ -128,4 +134,5 @@ while True:
     finally:
         time.sleep(random.randint(1, 3))
     end_time = time.time()
-    print("本次通过直播间爬取", len(live_room_dict), "个主播耗时：", (end_time - start_time) / 60, "分钟")
+    print("本次通过直播间爬取", len(live_room_dict), "个主播耗时：", "共有", living_count, "个主播直播",
+          (end_time - start_time) / 60, "分钟 平均耗时：", (end_time - start_time) / 60 / len(live_room_dict), "分钟")
