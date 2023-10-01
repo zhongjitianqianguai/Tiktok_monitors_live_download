@@ -63,6 +63,8 @@ while True:
                 pass
             with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
                 file.write(json.dumps(live_room_dict, ensure_ascii=False))
+            browser.quit()
+            browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
         live_room_dict_tmp = live_room_dict.copy()
         with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
             file.write(json.dumps(live_room_dict, ensure_ascii=False))
