@@ -38,8 +38,8 @@ def interceptor(req):
 
 options = uc.ChromeOptions()
 # 去掉"chrome正受到自动化测试软件的控制"的提示条
-options.add_experimental_option("excludeSwitches", ["enable-automation"])
-options.add_experimental_option('useAutomationExtension', False)
+# options.add_experimental_option("excludeSwitches", ["enable-automation"])
+# options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 options.add_argument("--shm-size=2048m")
