@@ -30,9 +30,6 @@ def download(live_url, filename):
     print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
 
 
-
-
-
 options = Options()
 # 去掉"chrome正受到自动化测试软件的控制"的提示条
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -103,16 +100,15 @@ while True:
                             print("本次抓取", actual_liver, "流媒体耗时：", (stream_end_time - stream_start_time) / 60,
                                   "分钟")
                             break
-                    else:
-                        try:
-                            # 校验是否下播了
-                            if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
-                                print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
-                                      liver, "未开播")
-                                is_living = False
-                                break
-                        except NoSuchElementException:
-                            continue
+                try:
+                    # 校验是否下播了
+                    if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
+                        print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
+                              liver, "未开播")
+                        is_living = False
+                        break
+                except NoSuchElementException:
+                    continue
             if not stream_is_get:
                 actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
                 if actual_liver != liver:
