@@ -9,7 +9,9 @@ from selenium.common import NoSuchElementException, WebDriverException, NoSuchWi
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
 from seleniumwire import webdriver
+from selenium.webdriver.support import expected_conditions as EC
 
 
 def download(live_url, filename):
@@ -48,7 +50,7 @@ while True:
     if is_first_time:
         input("请登录后按回车键继续...")
         is_first_time = False
-    time.sleep(random.randint(5, 10))
+    WebDriverWait(browser, 20, 0.5).until(EC.presence_of_element_located((By.CLASS_NAME, 'X5RsU67Q')))
     follow_live_list = browser.find_element(By.CLASS_NAME, 'X5RsU67Q')
     follow_live_link_lists = follow_live_list.find_elements(By.TAG_NAME, 'a')
     is_living_dict = {}
