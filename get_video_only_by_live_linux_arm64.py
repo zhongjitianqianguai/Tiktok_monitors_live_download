@@ -12,6 +12,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from seleniumwire import webdriver
 from selenium.webdriver.support import expected_conditions as ec
+import subprocess
 
 
 def download(live_url, filename):
@@ -20,14 +21,15 @@ def download(live_url, filename):
     filename = re.sub(r'[^\u4e00-\u9fa5a-zA-Z]', '', filename)
     wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
     print(time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + '下载完成', filename)
-    cmd = ("ffmpeg -i /media/sd/Download/" + filename + ".flv -vcodec copy -acodec "
-                                                        "copy /media/sd/Download/" + time.strftime('%Y-%m-%d-%H-%M-%S',
-                                                                                                   time.localtime(
-                                                                                                       time.time())) +
-           filename + ".mp4")
-    os.system(cmd)
+    filename = "example"
+    cmd = ["ffmpeg", "-i", "/media/sd/Download/" + filename + ".flv", "-vcodec", "copy", "-acodec", "copy",
+           "/media/sd/Download/" + time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + filename + ".mp4"]
+
+    with open("output.log", "w") as log:
+        subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
     os.remove("/media/sd/Download/" + filename + ".flv")
     print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
+    live_name.remove(live_url.split('.flv')[0].split('/')[-1])
 
 
 options = Options()
@@ -43,9 +45,7 @@ browser.scopes = [
     '.*flv.*',
 ]
 live_name = []
-pre_live_stream = ""
 while True:
-    living_count = 0
     start_time = time.time()
     with open('live_link_need_to_get.txt', "r") as f:
         live_links_need_to_get = f.readlines()
@@ -72,14 +72,15 @@ while True:
             browser.get(live_room_dict[liver])
             stream_is_get = False
             is_living = True
+            stream_start_time = time.time()
             while not stream_is_get and is_living:
-                stream_start_time = time.time()
                 for request in browser.requests:
                     # print(request)
                     if ".flv" in str(request):
-                        living_count += 1
                         # 获取接口返回内容
                         flv_name = str(request).split('.flv')[0].split('/')[-1]
+                        if flv_name in live_name:
+                            continue
                         stream_is_get = True
                         actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
                         if actual_liver != liver:
@@ -102,15 +103,15 @@ while True:
                             print("本次抓取", actual_liver, "流媒体耗时：", (stream_end_time - stream_start_time) / 60,
                                   "分钟")
                             break
-                    try:
-                        # 校验是否下播了
-                        if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
-                            print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
-                                  liver, "未开播")
-                            is_living = False
-                            break
-                    except NoSuchElementException:
-                        continue
+                try:
+                    # 校验是否下播了
+                    if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
+                        print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
+                              liver, "未开播")
+                        is_living = False
+                        break
+                except NoSuchElementException:
+                    continue
             if not stream_is_get:
                 actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
                 if actual_liver != liver:
@@ -138,5 +139,5 @@ while True:
     finally:
         time.sleep(random.randint(1, 3))
     end_time = time.time()
-    print("本次通过直播间爬取", len(live_room_dict), "个主播耗时：", "共有", living_count, "个主播直播",
+    print("本次通过直播间爬取", len(live_room_dict), "个主播耗时：", "共有", len(live_name), "个主播直播",
           (end_time - start_time) / 60, "分钟 平均耗时：", (end_time - start_time) / 60 / len(live_room_dict), "分钟")
