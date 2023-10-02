@@ -21,7 +21,6 @@ def download(live_url, filename):
     filename = re.sub(r'[^\u4e00-\u9fa5a-zA-Z]', '', filename)
     wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
     print(time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + '下载完成', filename)
-    filename = "example"
     cmd = ["ffmpeg", "-i", "/media/sd/Download/" + filename + ".flv", "-vcodec", "copy", "-acodec", "copy",
            "/media/sd/Download/" + time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + filename + ".mp4"]
 
