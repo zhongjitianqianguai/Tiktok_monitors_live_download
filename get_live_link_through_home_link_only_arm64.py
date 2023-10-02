@@ -78,11 +78,11 @@ while True:
                 home_browser.quit()
                 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                 continue
-    except NewConnectionError as e:
-        print(e)
-        continue
-    except MaxRetryError as e:
-        print(e)
-        continue
+    # except NewConnectionError as e:
+    #     print(e)
+    #     continue
+    # except MaxRetryError as e:
+    #     print(e)
+    #     continue
     end_time = time.time()
     print("本次爬取", len(home_links_only_keys), "个主播主页耗时：", (end_time - start_time)/60, "分钟")

@@ -4,6 +4,8 @@ import random
 import re
 import time
 from threading import Thread
+from urllib.error import HTTPError
+
 import wget
 from selenium.common import NoSuchElementException, WebDriverException, NoSuchWindowException
 from selenium.webdriver.chrome.options import Options
@@ -19,7 +21,21 @@ def download(live_url, filename):
     print('开始下载', filename)
     # 过滤英文和汉字以外的字符
     filename = re.sub(r'[^\u4e00-\u9fa5a-zA-Z]', '', filename)
-    wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
+    try:
+        wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
+    except HTTPError as e:
+        if "404" in str(e):
+            while True:
+                try:
+                    wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
+                    break
+                except HTTPError as e:
+                    if "404" in str(e):
+                        continue
+        else:
+            print(e)
+            return
+
     print(time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + '下载完成', filename)
     cmd = ["ffmpeg", "-i", "/media/sd/Download/" + filename + ".flv", "-vcodec", "copy", "-acodec", "copy",
            "/media/sd/Download/" + time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + filename + ".mp4"]
