@@ -23,7 +23,6 @@ def download(live_url, filename):
     print(time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + '下载完成', filename)
     cmd = ["ffmpeg", "-i", "/media/sd/Download/" + filename + ".flv", "-vcodec", "copy", "-acodec", "copy",
            "/media/sd/Download/" + time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + filename + ".mp4"]
-
     with open("output.log", "w") as log:
         subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
     os.remove("/media/sd/Download/" + filename + ".flv")
