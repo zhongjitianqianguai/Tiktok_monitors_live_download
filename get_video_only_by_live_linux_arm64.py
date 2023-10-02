@@ -112,7 +112,7 @@ while True:
                                 continue
                 try:
                     # 校验是否下播了
-                    if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
+                    if browser.find_element(By.CLASS_NAME, 'YQXSUEUr') and is_living:
                         print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
                               liver, "未开播")
                         is_living = False
