@@ -80,25 +80,14 @@ while True:
                     if ".flv" in str(request):
                         # 获取接口返回内容
                         flv_name = str(request).split('.flv')[0].split('/')[-1]
-                        if flv_name in live_name:
-                            try:
-                                # 校验是否下播了
-                                if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
-                                    print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
-                                          liver, "未开播")
-                                    is_living = False
-                                    break
-                            except NoSuchElementException:
-                                continue
-                            continue
                         stream_is_get = True
-                        actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
-                        if actual_liver != liver:
-                            live_room_dict_tmp.pop(liver)
-                            live_room_dict_tmp[actual_liver] = browser.current_url
-                            with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
-                                file.write(json.dumps(live_room_dict_tmp, ensure_ascii=False))
                         if flv_name not in live_name:
+                            actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
+                            if actual_liver != liver:
+                                live_room_dict_tmp.pop(liver)
+                                live_room_dict_tmp[actual_liver] = browser.current_url
+                                with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
+                                    file.write(json.dumps(live_room_dict_tmp, ensure_ascii=False))
                             print("主播", actual_liver, "正在直播...")
                             print(time.strftime('%Y-%m-%d_%H:%M:%S',
                                                 time.localtime(time.time())) + "已获取" + actual_liver + "流媒体：")
@@ -113,6 +102,16 @@ while True:
                             print("本次抓取", actual_liver, "流媒体耗时：", (stream_end_time - stream_start_time) / 60,
                                   "分钟")
                             break
+                        else:
+                            try:
+                                # 校验是否下播了
+                                if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
+                                    print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
+                                          liver, "未开播")
+                                    is_living = False
+                                    break
+                            except NoSuchElementException:
+                                continue
                 try:
                     # 校验是否下播了
                     if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
