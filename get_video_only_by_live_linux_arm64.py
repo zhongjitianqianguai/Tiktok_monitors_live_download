@@ -39,6 +39,7 @@ options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 options.add_argument("--shm-size=2048m")
+options.add_argument('--headless')
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
 browser.set_page_load_timeout(300)
 browser.scopes = [
@@ -80,6 +81,15 @@ while True:
                         # 获取接口返回内容
                         flv_name = str(request).split('.flv')[0].split('/')[-1]
                         if flv_name in live_name:
+                            try:
+                                # 校验是否下播了
+                                if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
+                                    print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
+                                          liver, "未开播")
+                                    is_living = False
+                                    break
+                            except NoSuchElementException:
+                                continue
                             continue
                         stream_is_get = True
                         actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
