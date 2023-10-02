@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from seleniumwire import webdriver
+from urllib3.exceptions import NewConnectionError, MaxRetryError
 
 options = Options()
 # 去掉"chrome正受到自动化测试软件的控制"的提示条
@@ -77,5 +78,11 @@ while True:
                 home_browser.quit()
                 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
                 continue
+    except NewConnectionError as e:
+        print(e)
+        continue
+    except MaxRetryError as e:
+        print(e)
+        continue
     end_time = time.time()
     print("本次爬取", len(home_links_only_keys), "个主播主页耗时：", (end_time - start_time)/60, "分钟")
