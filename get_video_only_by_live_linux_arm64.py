@@ -117,24 +117,23 @@ while True:
                             print("本次抓取", actual_liver, "流媒体耗时：", (stream_end_time - stream_start_time) / 60,
                                   "分钟")
                             break
-                    else:
-                        try:
-                            # 校验是否下播了
-                            if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
-                                print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
-                                      liver, "未开播")
-                                is_living = False
-                                break
-                        except NoSuchElementException:
-                            continue
-                        try:
-                            if browser.find_element(By.CLASS_NAME, 'JbEIkuHq'):
-                                print("主播", liver, "正在直播...")
-                                continue
-                        except NoSuchElementException:
-                            print("主播", liver, "未开播")
-                            is_living = False
-                            break
+                try:
+                    # 校验是否下播了
+                    if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
+                        print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
+                              liver, "未开播")
+                        is_living = False
+                        break
+                except NoSuchElementException:
+                    continue
+                try:
+                    if browser.find_element(By.CLASS_NAME, 'JbEIkuHq'):
+                        print("主播", liver, "正在直播...")
+                        continue
+                except NoSuchElementException:
+                    print("主播", liver, "未开播")
+                    is_living = False
+                    break
                 if time.time() - for_start_time > 60 * 2:
                     browser.refresh()
                     continue
