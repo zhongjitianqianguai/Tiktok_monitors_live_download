@@ -83,8 +83,8 @@ while True:
         live_room_dict_tmp = live_room_dict.copy()
         with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
             file.write(json.dumps(live_room_dict, ensure_ascii=False))
+        for_start_time = time.time()
         for liver in live_room_dict:
-            for_start_time = time.time()
             browser.get(live_room_dict[liver])
             stream_is_get = False
             is_living = True
