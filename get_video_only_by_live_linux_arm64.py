@@ -24,6 +24,13 @@ def download(live_url, filename):
     filename = re.sub(r'[^\u4e00-\u9fa5a-zA-Z]', '', filename)
     try:
         wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
+        print(time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + '下载完成', filename)
+        cmd = ["ffmpeg", "-i", "/media/sd/Download/" + filename + ".flv", "-vcodec", "copy", "-acodec", "copy",
+               "/media/sd/Download/" + time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + filename + ".mp4"]
+        with open("output.log", "w") as log:
+            subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
+        os.remove("/media/sd/Download/" + filename + ".flv")
+        print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
     except HTTPError as e:
         if "404" in str(e):
             while True:
@@ -38,15 +45,9 @@ def download(live_url, filename):
             return
     except Exception as e:
         print(e)
+    finally:
         live_downloading.pop(live)
-    print(time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + '下载完成', filename)
-    cmd = ["ffmpeg", "-i", "/media/sd/Download/" + filename + ".flv", "-vcodec", "copy", "-acodec", "copy",
-           "/media/sd/Download/" + time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + filename + ".mp4"]
-    with open("output.log", "w") as log:
-        subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
-    os.remove("/media/sd/Download/" + filename + ".flv")
-    print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
-    live_downloading.pop(live)
+
 
 
 options = Options()
@@ -88,6 +89,8 @@ while True:
             file.write(json.dumps(live_room_dict, ensure_ascii=False))
         for_start_time = time.time()
         for liver in live_room_dict:
+            if liver in live_downloading:
+                continue
             browser.get(live_room_dict[liver])
             stream_is_get = False
             is_living = True
@@ -126,8 +129,6 @@ while True:
                         print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
                               liver, "未开播")
                         is_living = False
-                        break
-                    if liver in live_downloading:
                         break
                 except NoSuchElementException:
                     continue
