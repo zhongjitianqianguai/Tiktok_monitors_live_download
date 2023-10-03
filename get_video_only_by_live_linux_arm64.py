@@ -18,7 +18,7 @@ import subprocess
 
 
 def download(live_url, filename):
-    live=filename
+    live = filename
     print('开始下载', filename)
     # 过滤英文和汉字以外的字符
     filename = re.sub(r'[^\u4e00-\u9fa5a-zA-Z]', '', filename)
@@ -36,7 +36,9 @@ def download(live_url, filename):
         else:
             print(e)
             return
-
+    except Exception as e:
+        print(e)
+        live_downloading.pop(live)
     print(time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + '下载完成', filename)
     cmd = ["ffmpeg", "-i", "/media/sd/Download/" + filename + ".flv", "-vcodec", "copy", "-acodec", "copy",
            "/media/sd/Download/" + time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + filename + ".mp4"]
@@ -124,6 +126,8 @@ while True:
                         print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
                               liver, "未开播")
                         is_living = False
+                        break
+                    if liver in live_downloading:
                         break
                 except NoSuchElementException:
                     continue
