@@ -53,7 +53,7 @@ options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 options.add_argument("--shm-size=2048m")
-options.add_argument('--headless')
+# options.add_argument('--headless')
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
 browser.set_page_load_timeout(300)
 browser.scopes = [
@@ -84,6 +84,7 @@ while True:
         with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
             file.write(json.dumps(live_room_dict, ensure_ascii=False))
         for liver in live_room_dict:
+            for_start_time = time.time()
             browser.get(live_room_dict[liver])
             stream_is_get = False
             is_living = True
@@ -133,6 +134,9 @@ while True:
                     print("主播", liver, "未开播")
                     is_living = False
                     break
+                if time.time() - for_start_time > 60 * 2:
+                    browser.refresh()
+                    continue
             if not stream_is_get:
                 actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
                 if actual_liver != liver:
