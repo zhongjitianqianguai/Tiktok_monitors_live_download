@@ -18,6 +18,7 @@ import subprocess
 
 
 def download(live_url, filename):
+    live=filename
     print('开始下载', filename)
     # 过滤英文和汉字以外的字符
     filename = re.sub(r'[^\u4e00-\u9fa5a-zA-Z]', '', filename)
@@ -43,7 +44,7 @@ def download(live_url, filename):
         subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
     os.remove("/media/sd/Download/" + filename + ".flv")
     print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
-    live_name.remove(live_url.split('.flv')[0].split('/')[-1])
+    live_downloading.pop(live)
 
 
 options = Options()
@@ -59,7 +60,7 @@ browser.set_page_load_timeout(300)
 browser.scopes = [
     '.*flv.*',
 ]
-live_name = []
+live_downloading = {}
 while True:
     start_time = time.time()
     with open('live_link_need_to_get.txt', "r") as f:
@@ -95,7 +96,7 @@ while True:
                     if ".flv" in str(request):
                         # 获取接口返回内容
                         flv_name = str(request).split('.flv')[0].split('/')[-1]
-                        if flv_name not in live_name:
+                        if flv_name not in live_downloading.values():
                             stream_is_get = True
                             actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
                             print("主播", actual_liver, "正在直播...")
@@ -107,7 +108,7 @@ while True:
                             print(time.strftime('%Y-%m-%d_%H:%M:%S',
                                                 time.localtime(time.time())) + "已获取" + actual_liver + "流媒体：")
                             print(str(request))
-                            live_name.append(flv_name)
+                            live_downloading[actual_liver] = flv_name
                             t = Thread(target=download, args=(str(request), actual_liver))
                             t.start()
                             pre_live_stream = str(request).split('.flv')[0].split('/')[-1]
@@ -164,5 +165,5 @@ while True:
     finally:
         time.sleep(random.randint(1, 3))
     end_time = time.time()
-    print("本次通过直播间爬取", len(live_room_dict), "个主播耗时：", "共有", len(live_name), "个主播直播",
+    print("本次通过直播间爬取", len(live_room_dict), "个主播耗时：", "共有", len(live_downloading), "个主播直播",
           (end_time - start_time) / 60, "分钟 平均耗时：", (end_time - start_time) / 60 / len(live_room_dict), "分钟")
