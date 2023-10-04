@@ -3,6 +3,7 @@ import os
 import random
 import re
 import time
+import traceback
 from threading import Thread
 from urllib.error import HTTPError
 
@@ -34,18 +35,20 @@ def download(live_url, filename):
         print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
     except HTTPError as e:
         if "404" in str(e):
+            print(e)
+            print(traceback.format_exc())
             while True:
                 try:
                     wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
                     break
                 except HTTPError as e:
                     if "404" in str(e):
+                        print(e)
+                        print(traceback.format_exc())
                         continue
-        else:
-            print(e)
-            return
     except Exception as e:
         print(e)
+        print(traceback.format_exc())
     finally:
         live_downloading.pop(live)
 
@@ -129,14 +132,14 @@ while True:
                     continue
                 try:
                     # 校验是否下播了
-                    if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'): #直播已结束显示在中间
+                    if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):  # 直播已结束显示在中间
                         print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
                               liver, "未开播")
                         is_living = False
                         break
                 except NoSuchElementException:
                     try:
-                        if browser.find_element(By.CLASS_NAME, 'JbEIkuHq'):
+                        if browser.find_element(By.CLASS_NAME, 'JbEIkuHq'):  # 寻找点赞数量按钮
                             print("主播", liver, "正在直播...")
                             continue
                     except NoSuchElementException:
@@ -152,6 +155,7 @@ while True:
                         file.write(json.dumps(live_room_dict_tmp, ensure_ascii=False))
     except WebDriverException as e:
         print(e.msg)
+        print(traceback.format_exc())
         try:
             # 判断页面是否存在
             title = browser.title
