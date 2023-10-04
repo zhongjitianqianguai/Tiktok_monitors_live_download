@@ -26,7 +26,8 @@ def download(live_url, filename):
         wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
         print(time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + '下载完成', filename)
         cmd = ["ffmpeg", "-i", "/media/sd/Download/" + filename + ".flv", "-vcodec", "copy", "-acodec", "copy",
-               "/media/sd/Download/" + time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + filename + ".mp4"]
+               "/media/sd/Download/" + time.strftime('%Y-%m-%d-%H-%M-%S',
+                                                     time.localtime(time.time())) + filename + ".mp4"]
         with open("output.log", "w") as log:
             subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
         os.remove("/media/sd/Download/" + filename + ".flv")
@@ -47,7 +48,6 @@ def download(live_url, filename):
         print(e)
     finally:
         live_downloading.pop(live)
-
 
 
 options = Options()
@@ -125,24 +125,24 @@ while True:
                             break
                 if time.time() - for_start_time > 60 * 2:
                     browser.refresh()
+                    for_start_time = time.time()
                     continue
                 try:
-                    if browser.find_element(By.CLASS_NAME, 'JbEIkuHq'):
-                        print("主播", liver, "正在直播...")
-                        continue
-                except NoSuchElementException:
-                    print("主播", liver, "未开播")
-                    is_living = False
-                    break
-                try:
                     # 校验是否下播了
-                    if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):
+                    if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'): #直播已结束显示在中间
                         print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
                               liver, "未开播")
                         is_living = False
                         break
                 except NoSuchElementException:
-                    continue
+                    try:
+                        if browser.find_element(By.CLASS_NAME, 'JbEIkuHq'):
+                            print("主播", liver, "正在直播...")
+                            continue
+                    except NoSuchElementException:
+                        print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())), "主播", liver, "未开播")
+                        is_living = False
+                        break
             if not stream_is_get:
                 actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
                 if actual_liver != liver:
