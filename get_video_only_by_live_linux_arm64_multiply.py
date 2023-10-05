@@ -75,7 +75,7 @@ def get_video(part_id):
     while True:
         with open("Tiktok_live_room_link_by_auto_get.txt", "r", encoding='utf-8') as f:
             live_room_dict = eval(f.read())
-        browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
+        browser = webdriver.Chrome(service=Service('/usr/bin/webdriver'), options=options)
         start_time = time.time()
         browser.set_page_load_timeout(300)
         browser.scopes = [
@@ -95,7 +95,7 @@ def get_video(part_id):
             with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
                 file.write(json.dumps(live_room_dict, ensure_ascii=False))
             browser.quit()
-            browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
+            browser = webdriver.Chrome(service=Service('/usr/bin/webdriver'), options=options)
         try:
             live_room_dict_part = split_dict(live_room_dict)[part_id]
             with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
