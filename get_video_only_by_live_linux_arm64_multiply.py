@@ -75,7 +75,7 @@ def get_video(part_id):
     while True:
         with open("Tiktok_live_room_link_by_auto_get.txt", "r", encoding='utf-8') as f:
             live_room_dict = eval(f.read())
-        browser = webdriver.Chrome(service=Service('/usr/bin/webdriver'), options=options)
+        browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
         start_time = time.time()
         browser.set_page_load_timeout(300)
         browser.scopes = [
@@ -95,7 +95,7 @@ def get_video(part_id):
             with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
                 file.write(json.dumps(live_room_dict, ensure_ascii=False))
             browser.quit()
-            browser = webdriver.Chrome(service=Service('/usr/bin/webdriver'), options=options)
+            browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
         try:
             live_room_dict_part = split_dict(live_room_dict)[part_id]
             with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
@@ -201,7 +201,7 @@ options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--lang=zh_CN")
 options.add_argument("--shm-size=2048m")
-options.add_argument('--headless')
+# options.add_argument('--headless')
 live_downloading = {}
 for i in range(3):
     t = Thread(target=get_video, args=(i,))
