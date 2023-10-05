@@ -168,7 +168,7 @@ while True:
                 except NoSuchElementException:
                     if browser.find_element(By.CLASS_NAME, 'P6wJrwQ6'):
                         print("因主播的设置，您不能观看此内容。")
-                        break
+                        continue
     except WebDriverException as e:
         print(e.msg)
         print(traceback.format_exc())

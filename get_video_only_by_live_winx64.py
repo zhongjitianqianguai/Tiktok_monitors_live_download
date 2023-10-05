@@ -13,6 +13,9 @@ from selenium.webdriver.support import expected_conditions as ec
 
 options = Options()
 options.add_argument("--lang=zh_CN")
+options.add_experimental_option("excludeSwitches", ["enable-automation"])
+options.add_experimental_option('useAutomationExtension', False)
+options.add_argument("disable-blink-features=AutomationControlled")
 browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
 browser.set_page_load_timeout(300)
 browser.scopes = [
@@ -119,7 +122,7 @@ while True:
                 except NoSuchElementException:
                     if browser.find_element(By.CLASS_NAME, 'P6wJrwQ6'):
                         print("因主播的设置，您不能观看此内容。")
-                        break
+                        continue
     except WebDriverException as e:
         print(e.msg)
         print(traceback.format_exc())
