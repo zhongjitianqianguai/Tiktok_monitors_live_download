@@ -201,6 +201,7 @@ options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--lang=zh_CN")
 options.add_argument("--shm-size=2048m")
+options.add_argument("--no-sandbox")
 # options.add_argument('--headless')
 live_downloading = {}
 for i in range(3):
