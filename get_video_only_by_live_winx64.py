@@ -100,8 +100,10 @@ while True:
                     try:
                         if browser.find_element(By.CLASS_NAME, 'JbEIkuHq'):  # 寻找点赞数量按钮
                             print("通过寻找点赞数量发现主播", liver, "正在直播...")
-                            if not stream_is_get:
+                            if not stream_is_get and liver not in live_downloading:
                                 continue
+                            else:
+                                break
                     except NoSuchElementException:
                         print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())), "主播", liver, "未开播")
                         is_living = False
