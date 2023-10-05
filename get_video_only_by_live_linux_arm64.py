@@ -64,7 +64,7 @@ options.add_argument("--shm-size=2048m")
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
 browser.set_page_load_timeout(300)
 browser.scopes = [
-    '.*flv.*',
+    '.*stream-.*.flv.*',
 ]
 live_downloading = {}
 while True:
@@ -87,6 +87,10 @@ while True:
                 file.write(json.dumps(live_room_dict, ensure_ascii=False))
             browser.quit()
             browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+            browser.set_page_load_timeout(300)
+            browser.scopes = [
+                '.*stream-.*.flv.*',
+            ]
         live_room_dict_tmp = live_room_dict.copy()
         with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
             file.write(json.dumps(live_room_dict, ensure_ascii=False))
@@ -99,6 +103,10 @@ while True:
             is_living = True
             stream_start_time = time.time()
             while not stream_is_get and is_living:
+                if time.time() - for_start_time > 60 * 2:
+                    browser.refresh()
+                    for_start_time = time.time()
+                    continue
                 for request in browser.requests:
                     # print(request)
                     if ".flv" in str(request):
@@ -122,14 +130,14 @@ while True:
                             pre_live_stream = str(request).split('.flv')[0].split('/')[-1]
                             browser.quit()
                             browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+                            browser.set_page_load_timeout(300)
+                            browser.scopes = [
+                                '.*stream-.*.flv.*',
+                            ]
                             stream_end_time = time.time()
                             print("本次抓取", actual_liver, "流媒体耗时：", (stream_end_time - stream_start_time) / 60,
                                   "分钟")
                             break
-                if time.time() - for_start_time > 60 * 2:
-                    browser.refresh()
-                    for_start_time = time.time()
-                    continue
                 try:
                     # 校验是否下播了
                     if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):  # 直播已结束显示在中间
@@ -140,8 +148,9 @@ while True:
                 except NoSuchElementException:
                     try:
                         if browser.find_element(By.CLASS_NAME, 'JbEIkuHq'):  # 寻找点赞数量按钮
-                            print("主播", liver, "正在直播...")
-                            continue
+                            print("通过寻找点赞数量发现主播", liver, "正在直播...")
+                            if not stream_is_get:
+                                continue
                     except NoSuchElementException:
                         print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())), "主播", liver, "未开播")
                         is_living = False
@@ -170,11 +179,19 @@ while True:
                 print("页面已经关闭")
                 browser.quit()
                 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+                browser.set_page_load_timeout(300)
+                browser.scopes = [
+                    '.*stream-.*.flv.*',
+                ]
                 continue
             else:
                 print("页面崩溃或无法访问")
                 browser.quit()
                 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+                browser.set_page_load_timeout(300)
+                browser.scopes = [
+                    '.*stream-.*.flv.*',
+                ]
                 continue
     finally:
         time.sleep(random.randint(1, 3))
