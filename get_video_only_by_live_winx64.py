@@ -15,23 +15,28 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from seleniumwire import webdriver
 from selenium.webdriver.support import expected_conditions as ec
+from undetected_chromedriver import Chrome
 
 
+# def download(url, filename):
+#     live = filename
+#     print('开始下载', filename)
+#     filename = re.sub(r'[^\u4e00-\u9fa5a-zA-Z]', '', filename)
+#     urllib.request.urlretrieve(url, 'C:/Users/MI/Desktop/download_flv/' + filename + '.flv')
+#     print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '下载完成', filename)
+#     cmd = ["ffmpeg", "-i", "C:/Users/MI/Desktop/download_flv/" + filename + ".flv", "-vcodec", "copy", "-acodec",
+#            "copy",
+#            "C:/Users/MI/Desktop/download_flv/" + time.strftime('%Y-%m-%d-%H-%M-%S',
+#                                                                time.localtime(time.time())) + filename + ".mp4"]
+#     with open("output.log", "w") as log:
+#         subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
+#     os.remove("C:/Users/MI/Desktop/download_flv/" + filename + ".flv")
+#     print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
+#     live_downloading.pop(live)
 def download(url, filename):
-    live = filename
-    print('开始下载', filename)
-    filename = re.sub(r'[^\u4e00-\u9fa5a-zA-Z]', '', filename)
-    urllib.request.urlretrieve(url, 'C:/Users/MI/Desktop/download_flv/' + filename + '.flv')
-    print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '下载完成', filename)
-    cmd = ["ffmpeg", "-i", "C:/Users/MI/Desktop/download_flv/" + filename + ".flv", "-vcodec", "copy", "-acodec",
-           "copy",
-           "C:/Users/MI/Desktop/download_flv/" + time.strftime('%Y-%m-%d-%H-%M-%S',
-                                                               time.localtime(time.time())) + filename + ".mp4"]
-    with open("output.log", "w") as log:
-        subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
-    os.remove("C:/Users/MI/Desktop/download_flv/" + filename + ".flv")
-    print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
-    live_downloading.pop(live)
+    download_browser = Chrome(service=Service('webdriver/chromedriver.exe'))
+    browser.set_page_load_timeout(300)
+    download_browser.get(url)
 
 
 options = Options()
@@ -127,6 +132,13 @@ while True:
                         if browser.find_element(By.CLASS_NAME, 'JbEIkuHq'):  # 寻找点赞数量按钮
                             if not stream_is_get and liver not in live_downloading:
                                 print("通过寻找点赞数量发现主播", liver, "正在直播...")
+                                browser.quit()
+                                browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
+                                browser.set_page_load_timeout(300)
+                                browser.scopes = [
+                                    '.*stream-.*.flv.*',
+                                ]
+                                browser.get(live_room_dict[liver])
                                 continue
                             else:
                                 break
@@ -152,7 +164,8 @@ while True:
                         if 4 < time.localtime(time.time()).tm_hour.real < 7:
                             print("凌晨4点到7点，且网页加载异常，降低爬取频率")
                             time.sleep(random.randint(60 * 5, 60 * 10))
-                            continue
+                        browser.refresh()
+                        continue
 
     except TimeoutError:
         print("网页加载超时")

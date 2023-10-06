@@ -97,6 +97,7 @@ while True:
         for_start_time = time.time()
         for liver in live_room_dict:
             if liver in live_downloading:
+                print(liver, "正在下载中...", "跳过爬取")
                 continue
             browser.get(live_room_dict[liver])
             stream_is_get = False
@@ -175,7 +176,9 @@ while True:
                         if 4 < time.localtime(time.time()).tm_hour.real < 7:
                             print("凌晨4点到7点，且网页加载异常，降低爬取频率")
                             time.sleep(random.randint(60 * 5, 60 * 10))
-                            continue
+                        browser.refresh()
+                        continue
+
     except TimeoutError:
         print("网页加载超时")
         browser.quit()
