@@ -159,15 +159,23 @@ while True:
                         break
             if not stream_is_get:
                 try:
-                    if browser.find_element(By.CLASS_NAME, 'P6wJrwQ6'):
-                        print("因主播的设置，您不能观看此内容。")
-                        continue
+                    actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
+                    if actual_liver != liver:
+                        live_room_dict_tmp.pop(liver)
+                    live_room_dict_tmp[actual_liver] = browser.current_url
+                    with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
+                        file.write(json.dumps(live_room_dict_tmp, ensure_ascii=False))
                 except NoSuchElementException:
-                    print("网页加载异常")
-                    if 4 < time.localtime(time.time()).tm_hour.real < 7:
-                        print("凌晨4点到7点，且网页加载异常，降低爬取频率")
-                        time.sleep(random.randint(60 * 5, 60 * 10))
-                        continue
+                    try:
+                        if browser.find_element(By.CLASS_NAME, 'P6wJrwQ6'):
+                            print("因主播的设置，您不能观看此内容。")
+                            continue
+                    except NoSuchElementException:
+                        print("网页加载异常")
+                        if 4 < time.localtime(time.time()).tm_hour.real < 7:
+                            print("凌晨4点到7点，且网页加载异常，降低爬取频率")
+                            time.sleep(random.randint(60 * 5, 60 * 10))
+                            continue
     except TimeoutError:
         print("网页加载超时")
         browser.quit()
