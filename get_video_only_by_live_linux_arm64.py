@@ -34,7 +34,9 @@ def download(live_url, filename):
         os.remove("/media/sd/Download/" + filename + ".flv")
         print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
     except HTTPError as e:
+        account_404 = 0
         if "404" in str(e):
+            account_404 += 1
             print(e)
             print(traceback.format_exc())
             while True:
@@ -43,8 +45,11 @@ def download(live_url, filename):
                     break
                 except HTTPError as e:
                     if "404" in str(e):
+                        account_404 += 1
                         print(e)
                         print(traceback.format_exc())
+                        if account_404 > 10:
+                            break
                         continue
     except Exception as e:
         print(e)
