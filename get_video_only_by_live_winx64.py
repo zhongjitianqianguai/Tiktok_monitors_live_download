@@ -1,7 +1,13 @@
 import json
+import os
 import random
+import re
+import subprocess
 import time
 import traceback
+import urllib.request
+from threading import Thread
+
 from selenium.common import NoSuchElementException, WebDriverException, NoSuchWindowException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -9,6 +15,23 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from seleniumwire import webdriver
 from selenium.webdriver.support import expected_conditions as ec
+
+
+def download(url, filename):
+    live = filename
+    print('开始下载', filename)
+    filename = re.sub(r'[^\u4e00-\u9fa5a-zA-Z]', '', filename)
+    urllib.request.urlretrieve(url, 'C:/Users/MI/Desktop/download_flv/' + filename + '.flv')
+    print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '下载完成', filename)
+    cmd = ["ffmpeg", "-i", "C:/Users/MI/Desktop/download_flv/" + filename + ".flv", "-vcodec", "copy", "-acodec",
+           "copy",
+           "C:/Users/MI/Desktop/download_flv/" + time.strftime('%Y-%m-%d-%H-%M-%S',
+                                                               time.localtime(time.time())) + filename + ".mp4"]
+    with open("output.log", "w") as log:
+        subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
+    os.remove("C:/Users/MI/Desktop/download_flv/" + filename + ".flv")
+    print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
+    live_downloading.pop(live)
 
 
 options = Options()
@@ -61,10 +84,10 @@ while True:
                     for_start_time = time.time()
                     continue
                 for request in browser.requests:
-                    print("out flv", request)
+                    # print("out flv", request)
                     if ".flv" in str(request):
                         # 获取接口返回内容
-                        print("in flv", request)
+                        # print("in flv", request)
                         flv_name = str(request).split('.flv')[0].split('/')[-1]
                         if flv_name not in live_downloading.values():
                             stream_is_get = True
@@ -79,8 +102,8 @@ while True:
                                                 time.localtime(time.time())) + "已获取" + actual_liver + "流媒体：")
                             print(str(request))
                             live_downloading[actual_liver] = flv_name
-                            # download_browser.get(str(request))
-                            pre_live_stream = str(request).split('.flv')[0].split('/')[-1]
+                            t = Thread(target=download, args=(str(request), actual_liver))
+                            t.start()
                             browser.quit()
                             browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
                             browser.set_page_load_timeout(300)
@@ -102,8 +125,8 @@ while True:
                 except NoSuchElementException:
                     try:
                         if browser.find_element(By.CLASS_NAME, 'JbEIkuHq'):  # 寻找点赞数量按钮
-                            print("通过寻找点赞数量发现主播", liver, "正在直播...")
                             if not stream_is_get and liver not in live_downloading:
+                                print("通过寻找点赞数量发现主播", liver, "正在直播...")
                                 continue
                             else:
                                 break
@@ -120,9 +143,26 @@ while True:
                     with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
                         file.write(json.dumps(live_room_dict_tmp, ensure_ascii=False))
                 except NoSuchElementException:
-                    if browser.find_element(By.CLASS_NAME, 'P6wJrwQ6'):
-                        print("因主播的设置，您不能观看此内容。")
-                        continue
+                    try:
+                        if browser.find_element(By.CLASS_NAME, 'P6wJrwQ6'):
+                            print("因主播的设置，您不能观看此内容。")
+                            continue
+                    except NoSuchElementException:
+                        print("网页加载异常")
+                        if 4 < time.localtime(time.time()).tm_hour.real < 7:
+                            print("凌晨4点到7点，且网页加载异常，降低爬取频率")
+                            time.sleep(random.randint(60 * 5, 60 * 10))
+                            continue
+
+    except TimeoutError:
+        print("网页加载超时")
+        browser.quit()
+        browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
+        browser.set_page_load_timeout(300)
+        browser.scopes = [
+            '.*stream-.*.flv.*',
+        ]
+        continue
     except WebDriverException as e:
         print(e.msg)
         print(traceback.format_exc())
