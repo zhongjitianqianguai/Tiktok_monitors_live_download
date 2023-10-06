@@ -48,7 +48,7 @@ def download(live_url, filename):
                         account_404 += 1
                         print(e)
                         print(traceback.format_exc())
-                        if account_404 > 10:
+                        if account_404 > 5:
                             break
                         continue
     except Exception as e:
