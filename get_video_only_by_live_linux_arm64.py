@@ -23,12 +23,13 @@ def download(live_url, filename):
     print('开始下载', filename)
     # 过滤英文和汉字以外的字符
     filename = re.sub(r'[^\u4e00-\u9fa5a-zA-Z]', '', filename)
+    start_download_time = time.strftime('%Y-%m-%d-%H-%M-%S',
+                                        time.localtime(time.time()))
     try:
         wget.download(live_url, '/media/sd/Download/' + filename + '.flv')
         print(time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time())) + '下载完成', filename)
         cmd = ["ffmpeg", "-i", "/media/sd/Download/" + filename + ".flv", "-vcodec", "copy", "-acodec", "copy",
-               "/media/sd/Download/" + time.strftime('%Y-%m-%d-%H-%M-%S',
-                                                     time.localtime(time.time())) + filename + ".mp4"]
+               "/media/sd/Download/" + start_download_time + filename + ".mp4"]
         with open("output.log", "w") as log:
             subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
         os.remove("/media/sd/Download/" + filename + ".flv")

@@ -22,17 +22,22 @@ def download(url, filename):
     live = filename
     print('开始下载', filename)
     filename = re.sub(r'[^\u4e00-\u9fa5a-zA-Z]', '', filename)
-    urllib.request.urlretrieve(url, 'C:/Users/MI/Desktop/download_flv/' + filename + '.flv')
-    print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '下载完成', filename)
-    cmd = ["ffmpeg", "-i", "C:/Users/MI/Desktop/download_flv/" + filename + ".flv", "-vcodec", "copy", "-acodec",
-           "copy",
-           "C:/Users/MI/Desktop/download_flv/" + time.strftime('%Y-%m-%d-%H-%M-%S',
-                                                               time.localtime(time.time())) + filename + ".mp4"]
-    with open("output.log", "w") as log:
-        subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
-    os.remove("C:/Users/MI/Desktop/download_flv/" + filename + ".flv")
-    print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
-    live_downloading.pop(live)
+    start_download_time = time.strftime('%Y-%m-%d-%H-%M-%S',
+                                        time.localtime(time.time()))
+    try:
+        urllib.request.urlretrieve(url, 'C:/Users/MI/Desktop/download_flv/' + filename + '.flv')
+        print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '下载完成', filename)
+        cmd = ["ffmpeg", "-i", "C:/Users/MI/Desktop/download_flv/" + filename + ".flv", "-vcodec", "copy", "-acodec",
+               "copy",
+               "C:/Users/MI/Desktop/download_flv/" + start_download_time + filename + ".mp4"]
+        with open("output.log", "w") as log:
+            subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
+        os.remove("C:/Users/MI/Desktop/download_flv/" + filename + ".flv")
+        print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
+    except:
+        print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '下载失败', filename)
+    finally:
+        live_downloading.pop(live)
 # def download(url, filename):
 #     download_browser = Chrome(service=Service('webdriver/chromedriver.exe'))
 #     browser.set_page_load_timeout(300)
@@ -89,11 +94,12 @@ while True:
                     for_start_time = time.time()
                     continue
                 for request in browser.requests:
-                    # print("out flv", request)
+                    print("out flv", request)
                     if ".flv" in str(request):
                         # 获取接口返回内容
-                        # print("in flv", request)
+                        print("in flv", request)
                         flv_name = str(request).split('.flv')[0].split('/')[-1]
+                        print(flv_name)
                         if flv_name not in live_downloading.values():
                             stream_is_get = True
                             actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
@@ -107,8 +113,8 @@ while True:
                                                 time.localtime(time.time())) + "已获取" + actual_liver + "流媒体：")
                             print(str(request))
                             live_downloading[actual_liver] = flv_name
-                            t = Thread(target=download, args=(str(request), actual_liver))
-                            t.start()
+                            # t = Thread(target=download, args=(str(request), actual_liver))
+                            # t.start()
                             browser.quit()
                             browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
                             browser.set_page_load_timeout(300)
@@ -119,35 +125,35 @@ while True:
                             print("本次抓取", actual_liver, "流媒体耗时：", (stream_end_time - stream_start_time) / 60,
                                   "分钟")
                             break
-
-                try:
-                    # 校验是否下播了
-                    if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):  # 直播已结束显示在中间
-                        print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
-                              liver, "未开播")
-                        is_living = False
-                        break
-                except NoSuchElementException:
+                if not stream_is_get:
                     try:
-                        if browser.find_element(By.CLASS_NAME, 'JbEIkuHq'):  # 寻找点赞数量按钮
-                            if not stream_is_get and liver not in live_downloading:
-                                print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())),
-                                      "通过寻找点赞数量发现主播", liver, "正在直播...", "但并未获取流媒体",
-                                      "尝试重启浏览器")
-                                browser.quit()
-                                browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
-                                browser.set_page_load_timeout(300)
-                                browser.scopes = [
-                                    '.*stream-.*.flv.*',
-                                ]
-                                browser.get(live_room_dict[liver])
-                                continue
-                            else:
-                                break
+                        # 校验是否下播了
+                        if browser.find_element(By.CLASS_NAME, 'YQXSUEUr'):  # 直播已结束显示在中间
+                            print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
+                                  liver, "未开播")
+                            is_living = False
+                            break
                     except NoSuchElementException:
-                        print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())), "主播", liver, "未开播")
-                        is_living = False
-                        break
+                        try:
+                            if browser.find_element(By.CLASS_NAME, 'JbEIkuHq'):  # 寻找点赞数量按钮
+                                if not stream_is_get and liver not in live_downloading:
+                                    print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())),
+                                          "通过寻找点赞数量发现主播", liver, "正在直播...", "但并未获取流媒体",
+                                          "尝试重启浏览器")
+                                    browser.quit()
+                                    browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
+                                    browser.set_page_load_timeout(300)
+                                    browser.scopes = [
+                                        '.*stream-.*.flv.*',
+                                    ]
+                                    browser.get(live_room_dict[liver])
+                                    continue
+                                else:
+                                    break
+                        except NoSuchElementException:
+                            print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())), "主播", liver, "未开播")
+                            is_living = False
+                            break
             if not stream_is_get:
                 try:
                     actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
