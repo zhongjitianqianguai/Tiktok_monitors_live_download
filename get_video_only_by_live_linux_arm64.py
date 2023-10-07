@@ -65,7 +65,7 @@ options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 options.add_argument("--shm-size=2048m")
-# options.add_argument('--headless')
+options.add_argument('--headless')
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
 browser.set_page_load_timeout(300)
 browser.scopes = [
@@ -154,8 +154,17 @@ while True:
                 except NoSuchElementException:
                     try:
                         if browser.find_element(By.CLASS_NAME, 'JbEIkuHq'):  # 寻找点赞数量按钮
-                            print("通过寻找点赞数量发现主播", liver, "正在直播...")
                             if not stream_is_get and liver not in live_downloading:
+                                print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())),
+                                      "通过寻找点赞数量发现主播", liver, "正在直播...", "但并未获取流媒体",
+                                      "尝试重启浏览器")
+                                browser.quit()
+                                browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+                                browser.set_page_load_timeout(300)
+                                browser.scopes = [
+                                    '.*stream-.*.flv.*',
+                                ]
+                                browser.get(live_room_dict[liver])
                                 continue
                             else:
                                 break
@@ -179,15 +188,20 @@ while True:
                     except NoSuchElementException:
                         print("网页加载异常")
                         if 4 < time.localtime(time.time()).tm_hour.real < 7:
-                            print("凌晨4点到7点，且网页加载异常，降低爬取频率")
+                            print("凌晨4点到7点，且网页加载异常，降低爬取频率并重启浏览器")
                             time.sleep(random.randint(60 * 5, 60 * 10))
-                        browser.refresh()
+                        browser.quit()
+                        browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
+                        browser.set_page_load_timeout(300)
+                        browser.scopes = [
+                            '.*stream-.*.flv.*',
+                        ]
                         continue
 
     except TimeoutError:
         print("网页加载超时")
         browser.quit()
-        browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
+        browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
         browser.set_page_load_timeout(300)
         browser.scopes = [
             '.*stream-.*.flv.*',

@@ -18,25 +18,25 @@ from selenium.webdriver.support import expected_conditions as ec
 from undetected_chromedriver import Chrome
 
 
-# def download(url, filename):
-#     live = filename
-#     print('开始下载', filename)
-#     filename = re.sub(r'[^\u4e00-\u9fa5a-zA-Z]', '', filename)
-#     urllib.request.urlretrieve(url, 'C:/Users/MI/Desktop/download_flv/' + filename + '.flv')
-#     print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '下载完成', filename)
-#     cmd = ["ffmpeg", "-i", "C:/Users/MI/Desktop/download_flv/" + filename + ".flv", "-vcodec", "copy", "-acodec",
-#            "copy",
-#            "C:/Users/MI/Desktop/download_flv/" + time.strftime('%Y-%m-%d-%H-%M-%S',
-#                                                                time.localtime(time.time())) + filename + ".mp4"]
-#     with open("output.log", "w") as log:
-#         subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
-#     os.remove("C:/Users/MI/Desktop/download_flv/" + filename + ".flv")
-#     print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
-#     live_downloading.pop(live)
 def download(url, filename):
-    download_browser = Chrome(service=Service('webdriver/chromedriver.exe'))
-    browser.set_page_load_timeout(300)
-    download_browser.get(url)
+    live = filename
+    print('开始下载', filename)
+    filename = re.sub(r'[^\u4e00-\u9fa5a-zA-Z]', '', filename)
+    urllib.request.urlretrieve(url, 'C:/Users/MI/Desktop/download_flv/' + filename + '.flv')
+    print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '下载完成', filename)
+    cmd = ["ffmpeg", "-i", "C:/Users/MI/Desktop/download_flv/" + filename + ".flv", "-vcodec", "copy", "-acodec",
+           "copy",
+           "C:/Users/MI/Desktop/download_flv/" + time.strftime('%Y-%m-%d-%H-%M-%S',
+                                                               time.localtime(time.time())) + filename + ".mp4"]
+    with open("output.log", "w") as log:
+        subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
+    os.remove("C:/Users/MI/Desktop/download_flv/" + filename + ".flv")
+    print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
+    live_downloading.pop(live)
+# def download(url, filename):
+#     download_browser = Chrome(service=Service('webdriver/chromedriver.exe'))
+#     browser.set_page_load_timeout(300)
+#     download_browser.get(url)
 
 
 options = Options()
@@ -131,7 +131,9 @@ while True:
                     try:
                         if browser.find_element(By.CLASS_NAME, 'JbEIkuHq'):  # 寻找点赞数量按钮
                             if not stream_is_get and liver not in live_downloading:
-                                print("通过寻找点赞数量发现主播", liver, "正在直播...")
+                                print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())),
+                                      "通过寻找点赞数量发现主播", liver, "正在直播...", "但并未获取流媒体",
+                                      "尝试重启浏览器")
                                 browser.quit()
                                 browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
                                 browser.set_page_load_timeout(300)
@@ -162,9 +164,16 @@ while True:
                     except NoSuchElementException:
                         print("网页加载异常")
                         if 4 < time.localtime(time.time()).tm_hour.real < 7:
-                            print("凌晨4点到7点，且网页加载异常，降低爬取频率")
+                            print("凌晨4点到7点，且网页加载异常，降低爬取频率并重启浏览器")
                             time.sleep(random.randint(60 * 5, 60 * 10))
-                        browser.refresh()
+                        else:
+                            time.sleep(random.randint(1, 3))
+                        browser.quit()
+                        browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
+                        browser.set_page_load_timeout(300)
+                        browser.scopes = [
+                            '.*stream-.*.flv.*',
+                        ]
                         continue
 
     except TimeoutError:
