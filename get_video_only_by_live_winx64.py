@@ -15,7 +15,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from seleniumwire import webdriver
 from selenium.webdriver.support import expected_conditions as ec
-from undetected_chromedriver import Chrome
+
+
+# from undetected_chromedriver import Chrome
 
 
 def download(url, filename):
@@ -34,10 +36,14 @@ def download(url, filename):
             subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT)
         os.remove("C:/Users/MI/Desktop/download_flv/" + filename + ".flv")
         print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '转码完成', filename)
-    except:
+    except Exception as e:
+        print(e)
+        print(traceback.format_exc())
         print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + '下载失败', filename)
     finally:
         live_downloading.pop(live)
+
+
 # def download(url, filename):
 #     download_browser = Chrome(service=Service('webdriver/chromedriver.exe'))
 #     browser.set_page_load_timeout(300)
@@ -74,57 +80,18 @@ while True:
             with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
                 file.write(json.dumps(live_room_dict, ensure_ascii=False))
             browser.quit()
-            browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
-            browser.set_page_load_timeout(300)
-            browser.scopes = [
-                '.*stream-.*.flv.*',
-            ]
+
         live_room_dict_tmp = live_room_dict.copy()
         with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
             file.write(json.dumps(live_room_dict, ensure_ascii=False))
         for_start_time = time.time()
         for liver in live_room_dict:
+            browser.requests.clear()
             browser.get(live_room_dict[liver])
             stream_is_get = False
             is_living = True
             stream_start_time = time.time()
             while not stream_is_get and is_living:
-                if time.time() - for_start_time > 60 * 2:
-                    browser.refresh()
-                    for_start_time = time.time()
-                    continue
-                for request in browser.requests:
-                    print("out flv", request)
-                    if ".flv" in str(request):
-                        # 获取接口返回内容
-                        print("in flv", request)
-                        flv_name = str(request).split('.flv')[0].split('/')[-1]
-                        print(flv_name)
-                        if flv_name not in live_downloading.values():
-                            stream_is_get = True
-                            actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
-                            print("主播", actual_liver, "正在直播...")
-                            if actual_liver != liver:
-                                live_room_dict_tmp.pop(liver)
-                                live_room_dict_tmp[actual_liver] = browser.current_url
-                                with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
-                                    file.write(json.dumps(live_room_dict_tmp, ensure_ascii=False))
-                            print(time.strftime('%Y-%m-%d_%H:%M:%S',
-                                                time.localtime(time.time())) + "已获取" + actual_liver + "流媒体：")
-                            print(str(request))
-                            live_downloading[actual_liver] = flv_name
-                            # t = Thread(target=download, args=(str(request), actual_liver))
-                            # t.start()
-                            browser.quit()
-                            browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
-                            browser.set_page_load_timeout(300)
-                            browser.scopes = [
-                                '.*stream-.*.flv.*',
-                            ]
-                            stream_end_time = time.time()
-                            print("本次抓取", actual_liver, "流媒体耗时：", (stream_end_time - stream_start_time) / 60,
-                                  "分钟")
-                            break
                 if not stream_is_get:
                     try:
                         # 校验是否下播了
@@ -132,28 +99,68 @@ while True:
                             print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())) + "主播",
                                   liver, "未开播")
                             is_living = False
+                            browser.requests.clear()
+
                             break
                     except NoSuchElementException:
                         try:
                             if browser.find_element(By.CLASS_NAME, 'JbEIkuHq'):  # 寻找点赞数量按钮
                                 if not stream_is_get and liver not in live_downloading:
-                                    print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())),
-                                          "通过寻找点赞数量发现主播", liver, "正在直播...", "但并未获取流媒体",
-                                          "尝试重启浏览器")
-                                    browser.quit()
-                                    browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
-                                    browser.set_page_load_timeout(300)
-                                    browser.scopes = [
-                                        '.*stream-.*.flv.*',
-                                    ]
-                                    browser.get(live_room_dict[liver])
-                                    continue
+                                    if time.time() - for_start_time > 60:
+                                        browser.quit()
+                                        browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
+                                        browser.set_page_load_timeout(300)
+                                        browser.scopes = [
+                                            '.*stream-.*.flv.*',
+                                        ]
+                                        for_start_time = time.time()
+                                        browser.requests.clear()
+                                        continue
+                                    for request in browser.requests:
+                                        print("out flv", request)
+                                        if ".flv" in str(request):
+                                            # 获取接口返回内容
+                                            print("in flv", request)
+                                            flv_name = str(request).split('.flv')[0].split('/')[-1]
+                                            if flv_name not in live_downloading.values() and 'ld' not in flv_name:
+                                                stream_is_get = True
+                                                actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
+                                                print(actual_liver, flv_name)
+                                                print("主播", actual_liver, "正在直播...")
+                                                if actual_liver != liver:
+                                                    live_room_dict_tmp.pop(liver)
+                                                    live_room_dict_tmp[actual_liver] = browser.current_url
+                                                    with open("Tiktok_live_room_link_by_auto_get.txt", "w",
+                                                              encoding='utf-8') as file:
+                                                        file.write(json.dumps(live_room_dict_tmp, ensure_ascii=False))
+                                                print(time.strftime('%Y-%m-%d_%H:%M:%S',
+                                                                    time.localtime(
+                                                                        time.time())) + "已获取" + actual_liver + "流媒体：")
+                                                print(str(request))
+                                                live_downloading[actual_liver] = flv_name
+                                                t = Thread(target=download, args=(str(request), actual_liver))
+                                                t.start()
+                                                browser.quit()
+                                                browser = webdriver.Chrome(
+                                                    service=Service('webdriver/chromedriver.exe'), options=options)
+                                                browser.set_page_load_timeout(300)
+                                                browser.scopes = [
+                                                    '.*stream-.*.flv.*',
+                                                ]
+                                                stream_end_time = time.time()
+                                                print("本次抓取", actual_liver, "流媒体耗时：",
+                                                      (stream_end_time - stream_start_time) / 60,
+                                                      "分钟")
+                                                break
                                 else:
                                     break
                         except NoSuchElementException:
-                            print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())), "主播", liver, "未开播")
+                            print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())), "主播", liver,
+                                  "未开播")
                             is_living = False
+                            browser.requests.clear()
                             break
+
             if not stream_is_get:
                 try:
                     actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
@@ -162,6 +169,7 @@ while True:
                     live_room_dict_tmp[actual_liver] = browser.current_url
                     with open("Tiktok_live_room_link_by_auto_get.txt", "w", encoding='utf-8') as file:
                         file.write(json.dumps(live_room_dict_tmp, ensure_ascii=False))
+                    browser.requests.clear()
                 except NoSuchElementException:
                     try:
                         if browser.find_element(By.CLASS_NAME, 'P6wJrwQ6'):
@@ -180,6 +188,7 @@ while True:
                         browser.scopes = [
                             '.*stream-.*.flv.*',
                         ]
+
                         continue
 
     except TimeoutError:
@@ -218,7 +227,7 @@ while True:
                 ]
                 continue
     finally:
-        time.sleep(random.randint(1, 3))
+        time.sleep(random.randint(1, 5))
     end_time = time.time()
     print("本次通过直播间爬取", len(live_room_dict), "个主播耗时：", "共有", len(live_downloading), "个主播直播",
           (end_time - start_time) / 60, "分钟 平均耗时：", (end_time - start_time) / 60 / len(live_room_dict), "分钟")
