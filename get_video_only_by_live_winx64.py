@@ -100,7 +100,6 @@ while True:
                                   liver, "未开播")
                             is_living = False
                             browser.requests.clear()
-
                             break
                     except NoSuchElementException:
                         try:
@@ -108,7 +107,8 @@ while True:
                                 if not stream_is_get and liver not in live_downloading:
                                     if time.time() - for_start_time > 60:
                                         browser.quit()
-                                        browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
+                                        browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'),
+                                                                   options=options)
                                         browser.set_page_load_timeout(300)
                                         browser.scopes = [
                                             '.*stream-.*.flv.*',
@@ -153,6 +153,7 @@ while True:
                                                       "分钟")
                                                 break
                                 else:
+                                    browser.requests.clear()
                                     break
                         except NoSuchElementException:
                             print(time.strftime('%Y-%m-%d_%H:%M:%S', time.localtime(time.time())), "主播", liver,
