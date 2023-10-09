@@ -98,6 +98,8 @@ while True:
             file.write(json.dumps(live_room_dict, ensure_ascii=False))
         for_start_time = time.time()
         for liver in live_room_dict:
+            with open('running_log.txt', "w") as f:
+                f.write(str(time.time()))
             browser.requests.clear()
             browser.get(live_room_dict[liver])
             stream_is_get = False

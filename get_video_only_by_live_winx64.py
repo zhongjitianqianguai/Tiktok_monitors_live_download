@@ -115,6 +115,7 @@ while True:
                                         ]
                                         for_start_time = time.time()
                                         browser.requests.clear()
+                                        browser.get(live_room_dict[liver])
                                         continue
                                     for request in browser.requests:
                                         print("out flv", request)
