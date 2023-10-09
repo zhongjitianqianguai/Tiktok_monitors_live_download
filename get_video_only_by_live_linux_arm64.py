@@ -66,7 +66,7 @@ options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--no-sandbox")
 options.add_argument("--lang=zh_CN")
 options.add_argument("--shm-size=2048m")
-options.add_argument('--headless')
+# options.add_argument('--headless')
 browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'), options=options)
 browser.set_page_load_timeout(300)
 browser.scopes = [
@@ -117,7 +117,7 @@ while True:
                         try:
                             if browser.find_element(By.CLASS_NAME, 'JbEIkuHq'):  # 寻找点赞数量按钮
                                 if not stream_is_get and liver not in live_downloading:
-                                    if time.time() - for_start_time > 60:
+                                    if time.time() - for_start_time > 60 * 2:
                                         browser.quit()
                                         browser = webdriver.Chrome(service=Service('/usr/bin/chromedriver'),
                                                                    options=options)
@@ -127,6 +127,7 @@ while True:
                                         ]
                                         for_start_time = time.time()
                                         browser.requests.clear()
+                                        browser.get(live_room_dict[liver])
                                         continue
                                     for request in browser.requests:
                                         print("out flv", request)
