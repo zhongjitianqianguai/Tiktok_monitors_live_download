@@ -178,7 +178,10 @@ while True:
                             print("因主播的设置，您不能观看此内容。")
                             continue
                     except NoSuchElementException:
-                        print("网页加载异常")
+                        if "502 Bad Many Gateway" in browser.find_element(By.TAG_NAME, "h1").text:
+                            print("访问过于频繁遭服务器拒绝，降低爬取频率并重启浏览器")
+                            time.sleep(10)
+                        # print("网页加载异常")
                         if 4 < time.localtime(time.time()).tm_hour.real < 7:
                             print("凌晨4点到7点，且网页加载异常，降低爬取频率并重启浏览器")
                             time.sleep(random.randint(60 * 5, 60 * 10))
