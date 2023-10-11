@@ -1,10 +1,6 @@
 import json
-import os
 import random
-import re
-import subprocess
-import time
-import traceback
+import ssl
 import urllib.request
 from threading import Thread
 
@@ -16,8 +12,12 @@ from selenium.webdriver.support.wait import WebDriverWait
 from seleniumwire import webdriver
 from selenium.webdriver.support import expected_conditions as ec
 
-
-# from undetected_chromedriver import Chrome
+import urllib.request
+import subprocess
+import os
+import re
+import time
+import traceback
 
 
 def download(url, filename):
@@ -44,17 +44,12 @@ def download(url, filename):
         live_downloading.pop(live)
 
 
-# def download(url, filename):
-#     download_browser = Chrome(service=Service('webdriver/chromedriver.exe'))
-#     browser.set_page_load_timeout(300)
-#     download_browser.get(url)
-
-
 options = Options()
 options.add_argument("--lang=zh_CN")
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("disable-blink-features=AutomationControlled")
+options.add_argument('--headless')
 browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
 browser.set_page_load_timeout(300)
 browser.scopes = [
@@ -106,6 +101,7 @@ while True:
                             if browser.find_element(By.CLASS_NAME, 'JbEIkuHq'):  # 寻找点赞数量按钮
                                 if not stream_is_get and liver not in live_downloading:
                                     if time.time() - for_start_time > 60:
+                                        time.sleep(random.randint(10, 30))
                                         browser.quit()
                                         browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'),
                                                                    options=options)
@@ -123,7 +119,7 @@ while True:
                                             # 获取接口返回内容
                                             print("in flv", request)
                                             flv_name = str(request).split('.flv')[0].split('/')[-1]
-                                            if flv_name not in live_downloading.values() and 'ld' not in flv_name:
+                                            if flv_name not in live_downloading.values():
                                                 stream_is_get = True
                                                 actual_liver = browser.find_element(By.CLASS_NAME, 'st8eGKi4').text
                                                 print(actual_liver, flv_name)
@@ -139,6 +135,8 @@ while True:
                                                                         time.time())) + "已获取" + actual_liver + "流媒体：")
                                                 print(str(request))
                                                 live_downloading[actual_liver] = flv_name
+                                                with open('flv_link_need_to_download.txt', "w") as f:
+                                                    f.write(str(request))
                                                 t = Thread(target=download, args=(str(request), actual_liver))
                                                 t.start()
                                                 browser.quit()
@@ -177,16 +175,18 @@ while True:
                         if browser.find_element(By.CLASS_NAME, 'P6wJrwQ6'):
                             print("因主播的设置，您不能观看此内容。")
                             continue
-                    except NoSuchElementException:
-                        if "502 Bad Many Gateway" in browser.find_element(By.TAG_NAME, "h1").text:
-                            print("访问过于频繁遭服务器拒绝，降低爬取频率并重启浏览器")
-                            time.sleep(10)
-                        # print("网页加载异常")
-                        if 4 < time.localtime(time.time()).tm_hour.real < 7:
-                            print("凌晨4点到7点，且网页加载异常，降低爬取频率并重启浏览器")
-                            time.sleep(random.randint(60 * 5, 60 * 10))
-                        else:
-                            time.sleep(random.randint(1, 3))
+                    except NoSuchElementException:  # MaxRetryError NewConnectionError ConnectionRefusedError
+                        try:
+                            if "502 Bad Gateway" in browser.find_element(By.TAG_NAME, "h1").text:
+                                print("访问过于频繁遭服务器拒绝，降低爬取频率并重启浏览器")
+                                time.sleep(10)
+                        except NoSuchElementException:
+                            print("网页加载异常")
+                            if 4 < time.localtime(time.time()).tm_hour.real < 7:
+                                print("凌晨4点到7点，且网页加载异常，降低爬取频率并重启浏览器")
+                                time.sleep(random.randint(60 * 5, 60 * 10))
+                            else:
+                                time.sleep(random.randint(1, 3))
                         browser.quit()
                         browser = webdriver.Chrome(service=Service('webdriver/chromedriver.exe'), options=options)
                         browser.set_page_load_timeout(300)
